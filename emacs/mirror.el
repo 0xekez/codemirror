@@ -1,24 +1,38 @@
-;; Streams the contents of the current buffer to a remote server. This
-;; is slow because it seems to need to run syncronously.
-;; (require 'websocket)
+;; Streams the contents of the current buffer over a websocket connection.
+(require 'websocket)
 
-;; (setq sharing-websocket nil)
+(setq sharing-websocket nil)
+(setq websocket-server nil)
 
-(setq sharing-url nil)
+hello my name is zeke
 
-(defun init-sharing (url)
-  (interactive "P\nsSharing url:")
-  (setq sharing-url url)
-  (add-hook 'post-command-hook 'do-sharing nil 'local))
+(defun send-buffer-contents (ws)
+  (websocket-send-text ws (format "DATA%s" (buffer-string))))
 
-(defun do-sharing ()
-  (when sharing-url (post-buffer-contents sharing-url)))
+(defun do-websocket ()
+  (when sharing-websocket
+    (send-buffer-contents sharing-websocket)
+    (send-point sharing-websocket)))
 
-(defun post-buffer-contents (url)
-  (let ((url-request-method "POST")
-	(url-request-extra-headers
-	 '(("Content-Type" . "text")))
-	(url-request-data (buffer-string)))
-    (url-retrieve url '(lambda (status) nil))))
+(defun send-point (ws)
+  (websocket-send-text ws (get-point-loc)))
 
-(init-sharing "http://localhost:8080/")
+(defun init-websocket-server  ()
+  (setq  websocket-server
+	(websocket-server
+	 3001
+	 :host 'local
+	 ;; When a connection is opened set the sharing websocket to
+	 ;; this new one and send the current buffer contents over.
+	 :on-open (lambda (ws) (setq sharing-websocket ws) (do-websocket))
+	 :on-close (lambda (ws)
+		     (message "closing websocket connection")
+		     (setq  sharing-websocket nil))))
+  (add-hook 'post-command-hook 'do-websocket nil 'local))
+
+(init-websocket-server)
+
+;; (websocket-server-close websocket-server)
+
+(defun get-point-loc ()
+  (format "POINT%d %d" (line-number-at-pos) (current-column)))

@@ -1,0 +1,15 @@
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+#wrapper {
+    position: relative;
+}
+
+#cursor {
+    position: absolute;
+    background: transparent;
+    color: blue;
+    opacity: 40%;
+}
