@@ -30,10 +30,10 @@
 			 "") myHash)
     (json-serialize myHash)))
 
-(defun jsonify-point-msg (line col)
+(defun jsonify-point-msg ()
   (let ((myHash (make-hash-table :test 'equal)))
-    (puthash "type" "CURSOR" myHash)
-    (puthash "content" (format "%s %s" line col) myHash)
+    (puthash "type" "SELECTION" myHash)
+    (puthash "content" (format "%s %s" (point) 1) myHash)
     (json-serialize myHash)))
 
 (defun send-selection-info (ws)
@@ -49,19 +49,21 @@
 ;; Get's the point location formatted in a way that lines up with the
 ;; formatting requirements for our frontend.
 (defun get-point-loc ()
-  (jsonify-point-msg (- (line-number-at-pos) 1) (current-column)))
+  (jsonify-point-msg))
 
 ;; Sends the location of the cursor over WS.
 (defun send-point (ws)
-  (websocket-send-text ws (get-point-loc)))
+  (websocket-send-text ws
+		       (if (and (mark) mark-active)
+			   (jsonify-selection-msg)
+			 (jsonify-point-msg))))
 
 ;; Sends the buffer contents and the point information over the
 ;; sharing-websocket connection if it has been initialized.
 (defun do-websocket ()
   (when sharing-websocket
     (send-buffer-contents sharing-websocket)
-    (send-point sharing-websocket)
-    (send-selection-info sharing-websocket)))
+    (send-point sharing-websocket)))
 
 (defun handle-url (url)
   (with-temp-buffer-window "connection initialized" nil (lambda (a b) ())
