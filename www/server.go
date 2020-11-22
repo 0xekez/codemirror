@@ -277,6 +277,8 @@ func join(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
+	fmt.Println("Starting...")
+
 	sessions = make(map[string]chan chan message)
 
 	router := mux.NewRouter()
@@ -289,5 +291,8 @@ func main() {
 	router.PathPrefix("/public").Handler(http.StripPrefix("/public/", fs))
 
 	http.Handle("/", router)
+
+	fmt.Println("Started. Listening...")
 	http.ListenAndServe(":7654", nil)
+	fmt.Println("Stopping...")
 }
