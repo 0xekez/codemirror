@@ -18,6 +18,7 @@ const (
 	messageTypeData   = "DATA"
 	messageTypeCursor = "CURSOR"
 	messageTypeURL    = "URL"
+	messageTypeResend = "RESEND"
 )
 
 type message struct {
@@ -96,6 +97,8 @@ func create(w http.ResponseWriter, r *http.Request) {
 				client := <-serverChan
 				clients = append(clients, client)
 				sessionLog(uuid, "Detected new client")
+				// Ask editor to re-broadcast latest code
+				sendMessage(w, encoder, message{messageTypeResend, ""})
 			}
 		}()
 
@@ -121,7 +124,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			fmt.Println("Received:", msg)
+			sessionLog(uuid, "Received:", msg.Type)
 			for _, c := range clients {
 				c <- msg
 			}
