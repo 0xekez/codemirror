@@ -17,10 +17,20 @@
 (setq websocket-server nil)
 
 (defun jsonify-data-msg (contents)
-  (format "{ \"type\": \"DATA\", \"content\": \"%s\"}" contents))
+  (let ((myHash (make-hash-table :test 'equal)))
+    (puthash "type" "DATA" myHash)
+    (puthash "content" (buffer-string) myHash)
+    (json-serialize myHash)))
 
 (defun jsonify-point-msg (line col)
-  (format "{ \"type\": \"CURSOR\", \"content\": \"%s %s\"}" line col))
+  (let ((myHash (make-hash-table :test 'equal)))
+    (puthash "type" "CURSOR" myHash)
+    (puthash "content" (format "%s %s" line col) myHash)
+    (json-serialize myHash)))
+
+(defun show-server-message (message)
+  (with-temp-buffer-window "server-message" nil (lambda (a b) ())
+    (princ message)))
 
 ;; Sends the contents of the current buffer over WS.
 (defun send-buffer-contents (ws)
@@ -48,7 +58,7 @@
         (websocket-open
 	 url
          :on-message (lambda (_websocket frame)
-                       (message "ws frame: %S" (websocket-frame-text framee)))
+                       (show-server-message (websocket-frame-text frame)))
          :on-close (lambda (_websocket) (message "connection closed")))))
 
 ;; Initializes streaming over the current websocket streaming
@@ -74,3 +84,8 @@
 ;; (init-websocket-server)
 ;; (websocket-server-close websocket-server)
 ;; (init-websocket-connection "ws://demos.kaazing.com/echo")
+
+;; type: URL
+;; content:  LINK
+;; (init-websocket-connection "ws://localhost:8080/create")
+;; (init-websocket-streaming)
