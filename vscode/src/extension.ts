@@ -30,7 +30,7 @@ const displayWsUrl = () =>
 
 // Create new session
 const create = (context: vscode.ExtensionContext) => {
-  ws = new WebSocket('ws://noahsaso.com/mirror/create');
+  ws = new WebSocket('wss://mirror.noahsaso.com/create');
 
   const send = (type: MessageType, content: string) => ws?.send(JSON.stringify({ type, content }));
   const updateData = () => {

@@ -259,7 +259,7 @@ func join(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("An unexpected error occurred"))
 	}
 
-	url := fmt.Sprintf("ws://%s%s", req.Host, strings.ReplaceAll(req.URL.RequestURI(), fmt.Sprintf("/join/%s", uuid), fmt.Sprintf("/ws/%s", uuid)))
+	url := fmt.Sprintf("wss://%s%s", req.Host, strings.ReplaceAll(req.URL.RequestURI(), fmt.Sprintf("/join/%s", uuid), fmt.Sprintf("/ws/%s", uuid)))
 	t.Execute(w, url)
 }
 
