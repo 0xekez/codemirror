@@ -8,7 +8,8 @@ const context = document.getElementById("contents");
 const marker = new Mark(context);
 
 function scrollToCursor() {
-    document.querySelector("mark").scrollIntoView();
+    document.querySelector("mark").scrollIntoView(
+	{behavior: "smooth", block: "center", inline: "nearest"});
 }
 
 // Sets the contents of the page's code blocks to WHAT. Note that this

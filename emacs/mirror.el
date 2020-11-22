@@ -33,14 +33,8 @@
 (defun jsonify-point-msg ()
   (let ((myHash (make-hash-table :test 'equal)))
     (puthash "type" "SELECTION" myHash)
-    (puthash "content" (format "%s %s" (point) 1) myHash)
+    (puthash "content" (format "%s %s" (- (point) (line-number-at-pos (point))) 1) myHash)
     (json-serialize myHash)))
-
-(defun send-selection-info (ws)
-  ;; We don't send the selection info if the mark has never been set
-  ;; as it can be nil.
-  (when (and (mark) mark-active)
-    (websocket-send-text ws (jsonify-selection-msg))))
 
 ;; Sends the contents of the current buffer over WS.
 (defun send-buffer-contents (ws)
