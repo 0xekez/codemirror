@@ -45,7 +45,7 @@ const create = () => {
     if (pos === undefined) { return; }
     send(MessageType.cursor, `${pos.line} ${pos.character}`);
   };
-    
+
   ws.onmessage = (event) => {
     const msg = JSON.parse(event.data.toString('utf8')) as Message;
     // If sent URL back, display to user.
@@ -58,7 +58,7 @@ const create = () => {
       updateCursor();
     }
   };
-    
+
   ws.onopen = () => vscode.window.showInformationMessage("Sharing session started.");
   ws.onerror = (event) => vscode.window.showErrorMessage(event.error);
   ws.onclose = () => {
@@ -66,7 +66,7 @@ const create = () => {
     wsUrl = null;
     vscode.window.showInformationMessage("Sharing session closed.");
   };
-    
+
   vscode.window.onDidChangeActiveTextEditor(updateData);
   vscode.workspace.onDidChangeTextDocument(updateData);
   vscode.window.onDidChangeActiveTextEditor(updateCursor);
