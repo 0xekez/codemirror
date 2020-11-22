@@ -12,14 +12,22 @@
 ;; over.
 (setq sharing-websocket nil)
 
-;; The websocket server that is running in this emacs session if
-;; applicable.
-(setq websocket-server nil)
-
 (defun jsonify-data-msg (contents)
   (let ((myHash (make-hash-table :test 'equal)))
     (puthash "type" "DATA" myHash)
     (puthash "content" (buffer-string) myHash)
+    (json-serialize myHash)))
+
+(defun jsonify-selection-msg ()
+  (let ((myHash (make-hash-table :test 'equal))
+	(startPos (min (mark) (point)))
+	(linesBetween (abs (- (line-number-at-pos (mark)) (line-number-at-pos (point))))))
+    (puthash "type" "SELECTION" myHash)
+    (puthash "content" (if mark-active
+			   (format "%s %s"
+				   (- startPos (line-number-at-pos startPos))
+				   (- (abs (- (mark) (point))) linesBetween))
+			 "") myHash)
     (json-serialize myHash)))
 
 (defun jsonify-point-msg (line col)
@@ -28,9 +36,10 @@
     (puthash "content" (format "%s %s" line col) myHash)
     (json-serialize myHash)))
 
-(defun show-server-message (message)
-  (with-temp-buffer-window "server-message" nil (lambda (a b) ())
-    (princ message)))
+(defun send-selection-info (ws)
+  ;; We don't send the selection info if the mark has never been set
+  ;; as it can be nil.
+  (when (and (mark) mark-active) (websocket-send-text ws (jsonify-selection-msg))))
 
 ;; Sends the contents of the current buffer over WS.
 (defun send-buffer-contents (ws)
@@ -39,7 +48,7 @@
 ;; Get's the point location formatted in a way that lines up with the
 ;; formatting requirements for our frontend.
 (defun get-point-loc ()
-  (jsonify-point-msg (line-number-at-pos) (current-column)))
+  (jsonify-point-msg (- (line-number-at-pos) 1) (current-column)))
 
 ;; Sends the location of the cursor over WS.
 (defun send-point (ws)
@@ -50,12 +59,13 @@
 (defun do-websocket ()
   (when sharing-websocket
     (send-buffer-contents sharing-websocket)
-    (send-point sharing-websocket)))
+    (send-point sharing-websocket)
+    (send-selection-info sharing-websocket)))
 
 (defun handle-url (url)
   (with-temp-buffer-window "connection initialized" nil (lambda (a b) ())
-    (princ "Your new mirroring session is ready :)\n")
-    (princ "Others can view your session at the following link:\n\n")
+    (princ "Your new mirroring session is ready. Others can view your session\n")
+    (princ "at the following url:\n\n")
     (princ url)))
 
 (defun handle-resend (contents)
@@ -83,27 +93,16 @@
 ;; connection.
 (defun init-websocket-streaming ()
     (when sharing-websocket
-      (add-hook 'post-command-hook 'do-websocket nil 'local)))
+      (add-hook 'post-command-hook 'do-websocket)))
 
-;; Used to create a websocket server hosted by this emacs session.
-(defun init-websocket-server ()
-  (setq  websocket-server
-	(websocket-server
-	 3001
-	 :host 'local
-	 ;; When a connection is opened set the sharing websocket to
-	 ;; this new one and send the current buffer contents over.
-	 :on-open (lambda (ws) (setq sharing-websocket ws) (do-websocket))
-	 :on-close (lambda (ws)
-		     (message "closing websocket connection")
-		     (setq  sharing-websocket nil))))
-  (add-hook 'post-command-hook 'do-websocket nil 'local))
+(defun start-mirroring ()
+  (interactive)
+  (init-websocket-connection "ws://localhost:8080/create")
+  (init-websocket-streaming)
+  (message "started a mirroring session"))
 
-;; (init-websocket-server)
-;; (websocket-server-close websocket-server)
-;; (init-websocket-connection "ws://demos.kaazing.com/echo")
 
-;; type: URL
-;; content:  LINK
-;; (init-websocket-connection "ws://localhost:8080/create")
-;; (init-websocket-streaming)
+(defun stop-mirroring ()
+  (interactive)
+  (websocket-close sharing-websocket)
+  (remove-hook 'post-command-hook 'do-websocket))

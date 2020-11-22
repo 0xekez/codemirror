@@ -15,10 +15,11 @@ import (
 )
 
 const (
-	messageTypeData   = "DATA"
-	messageTypeCursor = "CURSOR"
-	messageTypeURL    = "URL"
-	messageTypeResend = "RESEND"
+	messageTypeData      = "DATA"
+	messageTypeCursor    = "CURSOR"
+	messageTypeURL       = "URL"
+	messageTypeResend    = "RESEND"
+	messageTypeSelection = "SELECTION"
 )
 
 type message struct {
