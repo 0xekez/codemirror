@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"sync"
 	"text/template"
 
 	"github.com/gobwas/ws"
@@ -28,6 +29,7 @@ type message struct {
 }
 
 var sessions map[string]chan chan message
+var sessionsMutex sync.Mutex
 
 func sendMessage(w *wsutil.Writer, encoder *json.Encoder, msg message) bool {
 	if err := encoder.Encode(&msg); err != nil {
@@ -78,7 +80,9 @@ func create(w http.ResponseWriter, r *http.Request) {
 	serverChan := make(chan chan message, 4)
 
 	uuid := uuid.New().String()
+	sessionsMutex.Lock()
 	sessions[uuid] = serverChan
+	sessionsMutex.Unlock()
 
 	sessionLog(uuid, "Creating")
 
@@ -99,7 +103,8 @@ func create(w http.ResponseWriter, r *http.Request) {
 			decoder = json.NewDecoder(r)
 			encoder = json.NewEncoder(w)
 
-			clients []chan message
+			clients      []chan message
+			clientsMutex sync.Mutex
 		)
 
 		// Send UUID join URL
@@ -114,16 +119,22 @@ func create(w http.ResponseWriter, r *http.Request) {
 					return
 				}
 
+				clientsMutex.Lock()
 				// If channel already exists in list,
-				// broken pipe detected so we should CLOSE
+				// broken pipe detected so we should CLOSE.
 				idx := indexOf(clients, client)
 				if idx > -1 {
 					clients = remove(clients, idx)
+					close(client)
 					sessionLog(uuid, "Client left")
-					return
+
+					clientsMutex.Unlock()
+					continue
 				}
 
 				clients = append(clients, client)
+				clientsMutex.Unlock()
+
 				sessionLog(uuid, "Detected new client")
 
 				// Ask editor to re-broadcast latest code
@@ -140,14 +151,18 @@ func create(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if hdr.OpCode == ws.OpClose {
-				// Close channel so everyone knows session is closed
+				sessionsMutex.Lock()
 				delete(sessions, uuid)
+				sessionsMutex.Unlock()
+
 				close(serverChan)
 
 				// Close listeners
+				clientsMutex.Lock()
 				for _, c := range clients {
 					close(c)
 				}
+				clientsMutex.Unlock()
 
 				sessionLog(uuid, "Closed")
 
@@ -164,9 +179,12 @@ func create(w http.ResponseWriter, r *http.Request) {
 			}
 
 			sessionLog(uuid, "Received:", msg.Type)
+			// Forward message to listeners
+			clientsMutex.Lock()
 			for _, c := range clients {
 				c <- msg
 			}
+			clientsMutex.Unlock()
 		}
 	}()
 }
@@ -175,7 +193,9 @@ func joinWS(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["uuid"]
 
+	sessionsMutex.Lock()
 	serverChan, ok := sessions[uuid]
+	sessionsMutex.Unlock()
 	if !ok {
 		sessionLog(uuid, "No session found")
 		w.Write([]byte(fmt.Sprintf("[%s] No session found", uuid)))
@@ -216,8 +236,7 @@ func joinWS(w http.ResponseWriter, r *http.Request) {
 
 			// if could not send successfully, close client
 			if !sendMessage(w, encoder, msg) {
-				close(client)
-				// A second channel send triggers removal from the list
+				// A second send to this channel triggers removal from the list and closure of the channel
 				serverChan <- client
 
 				return
@@ -231,7 +250,9 @@ func join(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["uuid"]
 
+	sessionsMutex.Lock()
 	_, ok := sessions[uuid]
+	sessionsMutex.Unlock()
 	if !ok {
 		sessionLog(uuid, "No session found")
 		w.Write([]byte(fmt.Sprintf("No session found for ID %s", uuid)))
