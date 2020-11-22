@@ -1,23 +1,64 @@
-;; Streams the contents of the current buffer over a websocket connection.
+;; Streams the contents of the current buffer over a websocket
+;; connection. The process for creating a connection and then
+;; streaming buffer contents over it is as follows:
+;;
+;;   1. Call `init-websocket-connection' with the url of the websocket
+;;      you'd like to connect to.
+;;   2. Call `init-websocket-streaming' to start streaming buffer
+;;      contents over the connection.
 (require 'websocket)
 
+;; The websocket that we are sending buffer and point information
+;; over.
 (setq sharing-websocket nil)
+
+;; The websocket server that is running in this emacs session if
+;; applicable.
 (setq websocket-server nil)
 
-hello my name is zeke
+(defun jsonify-data-msg (contents)
+  (format "{ \"type\": \"DATA\", \"content\": \"%s\"}" contents))
 
+(defun jsonify-point-msg (line col)
+  (format "{ \"type\": \"CURSOR\", \"content\": \"%s %s\"}" line col))
+
+;; Sends the contents of the current buffer over WS.
 (defun send-buffer-contents (ws)
-  (websocket-send-text ws (format "DATA%s" (buffer-string))))
+  (websocket-send-text ws (jsonify-data-msg (buffer-string))))
 
+;; Get's the point location formatted in a way that lines up with the
+;; formatting requirements for our frontend.
+(defun get-point-loc ()
+  (jsonify-point-msg (line-number-at-pos) (current-column)))
+
+;; Sends the location of the cursor over WS.
+(defun send-point (ws)
+  (websocket-send-text ws (get-point-loc)))
+
+;; Sends the buffer contents and the point information over the
+;; sharing-websocket connection if it has been initialized.
 (defun do-websocket ()
   (when sharing-websocket
     (send-buffer-contents sharing-websocket)
     (send-point sharing-websocket)))
 
-(defun send-point (ws)
-  (websocket-send-text ws (get-point-loc)))
+;; Initializes our sharing-websocket connection with a given URL.
+(defun init-websocket-connection (url)
+  (setq sharing-websocket
+        (websocket-open
+	 url
+         :on-message (lambda (_websocket frame)
+                       (message "ws frame: %S" (websocket-frame-text framee)))
+         :on-close (lambda (_websocket) (message "connection closed")))))
 
-(defun init-websocket-server  ()
+;; Initializes streaming over the current websocket streaming
+;; connection.
+(defun init-websocket-streaming ()
+    (when sharing-websocket
+      (add-hook 'post-command-hook 'do-websocket nil 'local)))
+
+;; Used to create a websocket server hosted by this emacs session.
+(defun init-websocket-server ()
   (setq  websocket-server
 	(websocket-server
 	 3001
@@ -30,9 +71,6 @@ hello my name is zeke
 		     (setq  sharing-websocket nil))))
   (add-hook 'post-command-hook 'do-websocket nil 'local))
 
-(init-websocket-server)
-
+;; (init-websocket-server)
 ;; (websocket-server-close websocket-server)
-
-(defun get-point-loc ()
-  (format "POINT%d %d" (line-number-at-pos) (current-column)))
+;; (init-websocket-connection "ws://demos.kaazing.com/echo")
