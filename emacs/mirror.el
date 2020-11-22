@@ -52,13 +52,31 @@
     (send-buffer-contents sharing-websocket)
     (send-point sharing-websocket)))
 
+(defun handle-url (url)
+  (with-temp-buffer-window "connection initialized" nil (lambda (a b) ())
+    (princ "Your new mirroring session is ready :)\n")
+    (princ "Others can view your session at the following link:\n\n")
+    (princ url)))
+
+(defun handle-resend (contents)
+  (do-websocket))
+
+(defun handle-server-message (msg)
+  (let ((json (json-parse-string msg)))
+    (let ((type (gethash "type" json))
+	  (contents (gethash "content" json)))
+      (cond
+       ((string= type "URL") (handle-url contents))
+       ((string= type "RESEND") (handle-resend contents))
+       (t (message "unrecognized message from mirroring server"))))))
+
 ;; Initializes our sharing-websocket connection with a given URL.
 (defun init-websocket-connection (url)
   (setq sharing-websocket
         (websocket-open
 	 url
          :on-message (lambda (_websocket frame)
-                       (show-server-message (websocket-frame-text frame)))
+                       (handle-server-message (websocket-frame-text frame)))
          :on-close (lambda (_websocket) (message "connection closed")))))
 
 ;; Initializes streaming over the current websocket streaming
