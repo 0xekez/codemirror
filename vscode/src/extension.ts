@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import { default as WebSocket } from 'ws';
-import { default as lineColumn } from 'line-column';
+import * as WebSocket from 'ws';
+import * as lineColumn from 'line-column';
 
 enum MessageType {
   data = 'DATA',
@@ -44,9 +44,11 @@ const create = (context: vscode.ExtensionContext) => {
     const selectionRange = vscode.window.activeTextEditor?.selection?.with();
     if (selectionRange === undefined) { return; }
 
-    const textLC = lineColumn(vscode.window.activeTextEditor?.document?.getText() || '', { origin: 0 });
+    const text = vscode.window.activeTextEditor?.document?.getText() || '';
+    const textLC = lineColumn(text, { origin: 0 });
     const start = textLC.toIndex(selectionRange.start.line, selectionRange.start.character) - selectionRange.start.line;
-    const end = textLC.toIndex(selectionRange.end.line, selectionRange.end.character) - selectionRange.end.line;
+    let end = textLC.toIndex(selectionRange.end.line, selectionRange.end.character) - selectionRange.end.line;
+    if (end < 0) {end = text.length;}
 
     send(MessageType.selection, `${start} ${end - start}`);
   };

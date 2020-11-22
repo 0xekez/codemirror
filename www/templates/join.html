@@ -4,8 +4,8 @@
     <!-- highlight.js initialization -->
     <link rel="stylesheet" href="/public/lib/highlight/styles/github.css">
     <script src="/public/lib/highlight/highlight.pack.js"></script>
-    <!-- <script src="/public/lib/mark/mark.js"></script> -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js"></script>
+    <script src="/public/lib/mark/mark.v9.min.js"></script>
+
     <!-- WS -->
     <script type="text/javascript">
       const WEBSOCKET_URL = "{{.}}";
@@ -15,8 +15,7 @@
     <link rel="stylesheet" href="/public/css/style.css">
   </head>
   <body>
-    <pre id="wrapper"><div id="cursor" class="hljs"></div><code id="contents">
-    </code></pre>
+    <pre id="wrapper"><code id="contents"></code></pre>
   </body>
   <!-- Our streaming javascript -->
   <script src="/public/js/streamer.js"></script>
