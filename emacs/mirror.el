@@ -39,7 +39,8 @@
 (defun send-selection-info (ws)
   ;; We don't send the selection info if the mark has never been set
   ;; as it can be nil.
-  (when (and (mark) mark-active) (websocket-send-text ws (jsonify-selection-msg))))
+  (when (and (mark) mark-active)
+    (websocket-send-text ws (jsonify-selection-msg))))
 
 ;; Sends the contents of the current buffer over WS.
 (defun send-buffer-contents (ws)
