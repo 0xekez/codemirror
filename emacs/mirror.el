@@ -94,7 +94,7 @@
 
 (defun start-mirroring ()
   (interactive)
-  (init-websocket-connection "ws://localhost:8080/create")
+  (init-websocket-connection "wss://mirror.noahsaso.com/create")
   (init-websocket-streaming)
   (message "started a mirroring session"))
 
