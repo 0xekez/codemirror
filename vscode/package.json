@@ -59,7 +59,9 @@
 		"webpack-cli": "^3.3.12"
 	},
 	"dependencies": {
+		"@types/line-column": "^1.0.0",
 		"@types/ws": "^7.4.0",
+		"line-column": "^1.0.2",
 		"ws": "^7.4.0"
 	}
 }

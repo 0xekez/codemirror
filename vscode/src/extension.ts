@@ -1,12 +1,12 @@
-import { start } from 'repl';
 import * as vscode from 'vscode';
-import * as WebSocket from 'ws';
+import { default as WebSocket } from 'ws';
+import { default as lineColumn } from 'line-column';
 
 enum MessageType {
   data = 'DATA',
-  cursor = 'CURSOR',
   url = 'URL',
   resend = 'RESEND',
+  selection = 'SELECTION',
 };
 
 interface Message {
@@ -29,7 +29,7 @@ const displayWsUrl = () =>
       .then(() => vscode.env.clipboard.writeText(wsUrl || ''));
 
 // Create new session
-const create = () => {
+const create = (context: vscode.ExtensionContext) => {
   ws = new WebSocket('ws://localhost:8080/create');
 
   const send = (type: MessageType, content: string) => ws?.send(JSON.stringify({ type, content }));
@@ -39,11 +39,16 @@ const create = () => {
     if (text === undefined) { return; }
     send(MessageType.data, text);
   };
-  const updateCursor = () => {
+  const updateSelection = () => {
     if (ws === null) { return; }
-    const pos = vscode.window.activeTextEditor?.selection.active;
-    if (pos === undefined) { return; }
-    send(MessageType.cursor, `${pos.line} ${pos.character}`);
+    const selectionRange = vscode.window.activeTextEditor?.selection?.with();
+    if (selectionRange === undefined) { return; }
+
+    const textLC = lineColumn(vscode.window.activeTextEditor?.document?.getText() || '', { origin: 0 });
+    const start = textLC.toIndex(selectionRange.start.line, selectionRange.start.character) - selectionRange.start.line;
+    const end = textLC.toIndex(selectionRange.end.line, selectionRange.end.character) - selectionRange.end.line;
+
+    send(MessageType.selection, `${start} ${end - start}`);
   };
 
   ws.onmessage = (event) => {
@@ -55,7 +60,7 @@ const create = () => {
     } else if (msg.type === MessageType.resend) {
       // Send latest code changes (for new clients)
       updateData();
-      updateCursor();
+      updateSelection();
     }
   };
 
@@ -67,10 +72,12 @@ const create = () => {
     vscode.window.showInformationMessage("Sharing session closed.");
   };
 
-  vscode.window.onDidChangeActiveTextEditor(updateData);
-  vscode.workspace.onDidChangeTextDocument(updateData);
-  vscode.window.onDidChangeActiveTextEditor(updateCursor);
-  vscode.window.onDidChangeTextEditorSelection(updateCursor);
+  context.subscriptions.push(...[
+    vscode.window.onDidChangeActiveTextEditor(updateData),
+    vscode.workspace.onDidChangeTextDocument(updateData),
+    vscode.window.onDidChangeActiveTextEditor(updateSelection),
+    vscode.window.onDidChangeTextEditorSelection(updateSelection)
+  ]);
 };
 
 export function activate(context: vscode.ExtensionContext) {
@@ -86,11 +93,11 @@ export function activate(context: vscode.ExtensionContext) {
         .then(selected => {
           if (selected?.startsWith('Yes')) {
             ws?.close();
-            create();
+            create(context);
           }
         });
     } else {
-      create();
+      create(context);
     }
   });
   // Show existing session URL
