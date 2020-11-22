@@ -12,8 +12,8 @@ const marker = new Mark(context);
 function setCodeContents(what) {
   const code = document.getElementById("contents");
   code.innerText = what;
-  hljs.initHighlighting.called = false;
-  hljs.initHighlighting();
+  code.className = '';
+  hljs.highlightBlock(code);
 }
 
 ws.onmessage = function (event) {
