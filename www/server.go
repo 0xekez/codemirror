@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"sync"
 	"text/template"
@@ -13,6 +14,11 @@ import (
 	"github.com/gobwas/ws/wsutil"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+)
+
+// Regex compilations
+var (
+	createRe = regexp.MustCompile(`/create.*$`)
 )
 
 const (
@@ -49,19 +55,6 @@ func sessionLog(uuid string, args ...string) {
 	fmt.Println(fmt.Sprintf("[%s]", uuid), strings.Join(args, " "))
 }
 
-func joinURL(uuid string, ws bool) string {
-	var (
-		protocol = "http"
-		route    = "join"
-	)
-	if ws {
-		protocol = "ws"
-		route = "ws"
-	}
-
-	return fmt.Sprintf("%s://localhost:8080/%s/%s", protocol, route, uuid)
-}
-
 func indexOf(chans []chan message, ch chan message) int {
 	for idx, elem := range chans {
 		if ch == elem {
@@ -76,7 +69,7 @@ func remove(chans []chan message, i int) []chan message {
 	return chans[:len(chans)-1]
 }
 
-func create(w http.ResponseWriter, r *http.Request) {
+func create(w http.ResponseWriter, req *http.Request) {
 	serverChan := make(chan chan message, 4)
 
 	uuid := uuid.New().String()
@@ -86,7 +79,7 @@ func create(w http.ResponseWriter, r *http.Request) {
 
 	sessionLog(uuid, "Creating")
 
-	conn, _, _, err := ws.UpgradeHTTP(r, w)
+	conn, _, _, err := ws.UpgradeHTTP(req, w)
 	if err != nil {
 		// handle error
 		fmt.Println(err)
@@ -108,7 +101,8 @@ func create(w http.ResponseWriter, r *http.Request) {
 		)
 
 		// Send UUID join URL
-		sendMessage(w, encoder, message{messageTypeURL, joinURL(uuid, false)})
+		url := fmt.Sprintf("http://%s%s", req.Host, createRe.ReplaceAllString(req.URL.RequestURI(), fmt.Sprintf("/join/%s", uuid)))
+		sendMessage(w, encoder, message{messageTypeURL, url})
 
 		// Listen for new clients or for closed clients
 		go func() {
@@ -189,8 +183,8 @@ func create(w http.ResponseWriter, r *http.Request) {
 	}()
 }
 
-func joinWS(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+func joinWS(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
 	uuid := vars["uuid"]
 
 	sessionsMutex.Lock()
@@ -207,7 +201,7 @@ func joinWS(w http.ResponseWriter, r *http.Request) {
 	client := make(chan message, 1)
 	serverChan <- client
 
-	conn, _, _, err := ws.UpgradeHTTP(r, w)
+	conn, _, _, err := ws.UpgradeHTTP(req, w)
 	if err != nil {
 		// handle error
 		fmt.Println(err)
@@ -246,8 +240,8 @@ func joinWS(w http.ResponseWriter, r *http.Request) {
 }
 
 // Web interface
-func join(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
+func join(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
 	uuid := vars["uuid"]
 
 	sessionsMutex.Lock()
@@ -265,7 +259,8 @@ func join(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("An unexpected error occurred"))
 	}
 
-	t.Execute(w, joinURL(uuid, true))
+	url := fmt.Sprintf("ws://%s%s", req.Host, strings.ReplaceAll(req.URL.RequestURI(), fmt.Sprintf("/join/%s", uuid), fmt.Sprintf("/ws/%s", uuid)))
+	t.Execute(w, url)
 }
 
 func main() {
