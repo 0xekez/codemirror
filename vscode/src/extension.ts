@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import * as WebSocket from 'ws';
+import WebSocket from 'ws';
 import * as lineColumn from 'line-column';
 
 enum MessageType {
@@ -30,7 +30,7 @@ const displayWsUrl = () =>
 
 // Create new session
 const create = (context: vscode.ExtensionContext) => {
-  ws = new WebSocket('ws://localhost:8080/create');
+  ws = new WebSocket('ws://noahsaso.com/mirror/create');
 
   const send = (type: MessageType, content: string) => ws?.send(JSON.stringify({ type, content }));
   const updateData = () => {
