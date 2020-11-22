@@ -276,5 +276,5 @@ func main() {
 	router.PathPrefix("/public").Handler(http.StripPrefix("/public/", fs))
 
 	http.Handle("/", router)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":7654", nil)
 }
