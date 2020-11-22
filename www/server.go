@@ -69,6 +69,29 @@ func remove(chans []chan message, i int) []chan message {
 	return chans[:len(chans)-1]
 }
 
+/**
+ * Deletes the session from the master map, closes the server channel, and closes the client channels.
+ */
+func closeSession(uuid string, serverChan chan chan message, clients []chan message, clientsMutex *sync.Mutex) {
+	// Lock clients first so nothing can try to send through
+	// a channel while the session is being closed.
+	clientsMutex.Lock()
+
+	sessionsMutex.Lock()
+	delete(sessions, uuid)
+	sessionsMutex.Unlock()
+
+	close(serverChan)
+
+	// Close listeners
+	for _, c := range clients {
+		close(c)
+	}
+	clientsMutex.Unlock()
+
+	sessionLog(uuid, "Closed")
+}
+
 func create(w http.ResponseWriter, req *http.Request) {
 	serverChan := make(chan chan message, 4)
 
@@ -132,7 +155,11 @@ func create(w http.ResponseWriter, req *http.Request) {
 				sessionLog(uuid, "Detected new client")
 
 				// Ask editor to re-broadcast latest code
-				sendMessage(w, encoder, message{messageTypeResend, ""})
+				if !sendMessage(w, encoder, message{messageTypeResend, ""}) {
+					// if could not send successfully, close server
+					closeSession(uuid, serverChan, clients, &clientsMutex)
+					return
+				}
 			}
 		}()
 
@@ -145,21 +172,7 @@ func create(w http.ResponseWriter, req *http.Request) {
 			}
 
 			if hdr.OpCode == ws.OpClose {
-				sessionsMutex.Lock()
-				delete(sessions, uuid)
-				sessionsMutex.Unlock()
-
-				close(serverChan)
-
-				// Close listeners
-				clientsMutex.Lock()
-				for _, c := range clients {
-					close(c)
-				}
-				clientsMutex.Unlock()
-
-				sessionLog(uuid, "Closed")
-
+				closeSession(uuid, serverChan, clients, &clientsMutex)
 				return
 			}
 
