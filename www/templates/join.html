@@ -1,0 +1,23 @@
+<!doctype html>
+<html class="hljs">
+  <head>
+    <!-- highlight.js initialization -->
+    <link rel="stylesheet" href="/public/lib/highlight/styles/github.css">
+    <script src="/public/lib/highlight/highlight.pack.js"></script>
+
+    <!-- WS -->
+    <script type="text/javascript">
+      const WEBSOCKET_URL = "{{.}}";
+    </script>
+
+    <!-- Our streaming javascript -->
+    <script src="/public/js/streamer.js"></script>
+
+    <!-- Our stylesheet -->
+    <link rel="stylesheet" href="/public/css/style.css">
+  </head>
+  <body>
+    <pre id="wrapper"><div id="cursor" class="hljs"></div><code id="contents">
+    </code></pre>
+  </body>
+</html>

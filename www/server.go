@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"text/template"
 
 	"github.com/gobwas/ws"
 	"github.com/gobwas/ws/wsutil"
@@ -13,15 +14,22 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const (
+	messageTypeData   = "DATA"
+	messageTypeCursor = "CURSOR"
+	messageTypeURL    = "URL"
+)
+
 type message struct {
 	// the json tag means this will serialize as a lowercased field
-	Message string `json:"message"`
+	Type    string `json:"type"`
+	Content string `json:"content"`
 }
 
-var sessions map[string]chan chan string
+var sessions map[string]chan chan message
 
-func sendMessage(w *wsutil.Writer, encoder *json.Encoder, msg string) bool {
-	if err := encoder.Encode(&message{msg}); err != nil {
+func sendMessage(w *wsutil.Writer, encoder *json.Encoder, msg message) bool {
+	if err := encoder.Encode(&msg); err != nil {
 		fmt.Println("Encode err:", err)
 		return false
 	}
@@ -38,8 +46,21 @@ func sessionLog(uuid string, args ...string) {
 	fmt.Println(fmt.Sprintf("[%s]", uuid), strings.Join(args, " "))
 }
 
+func joinURL(uuid string, ws bool) string {
+	var (
+		protocol = "http"
+		route    = "join"
+	)
+	if ws {
+		protocol = "ws"
+		route = "ws"
+	}
+
+	return fmt.Sprintf("%s://localhost:8080/%s/%s", protocol, route, uuid)
+}
+
 func create(w http.ResponseWriter, r *http.Request) {
-	serverChan := make(chan chan string, 4)
+	serverChan := make(chan chan message, 4)
 
 	uuid := uuid.New().String()
 	sessions[uuid] = serverChan
@@ -63,11 +84,11 @@ func create(w http.ResponseWriter, r *http.Request) {
 			decoder = json.NewDecoder(r)
 			encoder = json.NewEncoder(w)
 
-			clients []chan string
+			clients []chan message
 		)
 
-		// Send UUID
-		sendMessage(w, encoder, fmt.Sprintf("ws://localhost:8080/join/%s", uuid))
+		// Send UUID join URL
+		sendMessage(w, encoder, message{messageTypeURL, joinURL(uuid, false)})
 
 		go func() {
 			for {
@@ -100,15 +121,35 @@ func create(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 
-			fmt.Println("Received:", msg.Message)
+			fmt.Println("Received:", msg)
 			for _, c := range clients {
-				c <- msg.Message
+				c <- msg
 			}
 		}
 	}()
 }
 
 func join(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	uuid := vars["uuid"]
+
+	_, ok := sessions[uuid]
+	if !ok {
+		sessionLog(uuid, "No session found")
+		w.Write([]byte(fmt.Sprintf("No session found for ID %s", uuid)))
+		return
+	}
+
+	t, err := template.ParseFiles("./templates/join.html")
+	if err != nil {
+		fmt.Println("Template parse err:", err)
+		w.Write([]byte("An unexpected error occurred"))
+	}
+
+	t.Execute(w, joinURL(uuid, true))
+}
+
+func joinWS(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	uuid := vars["uuid"]
 
@@ -121,7 +162,7 @@ func join(w http.ResponseWriter, r *http.Request) {
 
 	sessionLog(uuid, "Joining")
 
-	client := make(chan string, 1)
+	client := make(chan message, 1)
 	serverChan <- client
 
 	conn, _, _, err := ws.UpgradeHTTP(r, w)
@@ -145,18 +186,23 @@ func join(w http.ResponseWriter, r *http.Request) {
 
 		// Wait for new data to send indefinitely
 		for {
-			text := <-client
-			sendMessage(w, encoder, text)
+			msg := <-client
+			sendMessage(w, encoder, msg)
 		}
 	}()
 }
 
 func main() {
-	sessions = make(map[string]chan chan string)
-	router := mux.NewRouter()
+	sessions = make(map[string]chan chan message)
 
+	router := mux.NewRouter()
 	router.HandleFunc("/create", create)
 	router.HandleFunc("/join/{uuid}", join)
+	router.HandleFunc("/ws/{uuid}", joinWS)
+
+	// Setup file server
+	fs := http.FileServer(http.Dir("public"))
+	router.PathPrefix("/public").Handler(http.StripPrefix("/public/", fs))
 
 	http.Handle("/", router)
 	http.ListenAndServe(":8080", nil)
