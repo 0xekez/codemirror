@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import * as WebSocket from 'ws';
-import * as lineColumn from 'line-column';
+import WebSocket from 'ws';
+import lineColumn from 'line-column';
 
 enum MessageType {
   data = 'DATA',
@@ -30,15 +30,9 @@ const displayWsUrl = () =>
 
 // Create new session
 const create = (context: vscode.ExtensionContext) => {
-  ws = new WebSocket('ws://localhost:8080/create');
+  ws = new WebSocket('wss://mirror.noahsaso.com/create');
 
   const send = (type: MessageType, content: string) => ws?.send(JSON.stringify({ type, content }));
-  const updateData = () => {
-    if (ws === null) { return; }
-    const text = vscode.window.activeTextEditor?.document?.getText();
-    if (text === undefined) { return; }
-    send(MessageType.data, text);
-  };
   const updateSelection = () => {
     if (ws === null) { return; }
     const selectionRange = vscode.window.activeTextEditor?.selection?.with();
@@ -52,6 +46,13 @@ const create = (context: vscode.ExtensionContext) => {
 
     send(MessageType.selection, `${start} ${end - start}`);
   };
+  const updateDataAndSelection = () => {
+    if (ws === null) { return; }
+    const text = vscode.window.activeTextEditor?.document?.getText();
+    if (text === undefined) { return; }
+    send(MessageType.data, text);
+    updateSelection();
+  };
 
   ws.onmessage = (event) => {
     const msg = JSON.parse(event.data.toString('utf8')) as Message;
@@ -61,8 +62,7 @@ const create = (context: vscode.ExtensionContext) => {
       displayWsUrl();
     } else if (msg.type === MessageType.resend) {
       // Send latest code changes (for new clients)
-      updateData();
-      updateSelection();
+      updateDataAndSelection();
     }
   };
 
@@ -75,9 +75,8 @@ const create = (context: vscode.ExtensionContext) => {
   };
 
   context.subscriptions.push(...[
-    vscode.window.onDidChangeActiveTextEditor(updateData),
-    vscode.workspace.onDidChangeTextDocument(updateData),
-    vscode.window.onDidChangeActiveTextEditor(updateSelection),
+    vscode.window.onDidChangeActiveTextEditor(updateDataAndSelection),
+    vscode.workspace.onDidChangeTextDocument(updateDataAndSelection),
     vscode.window.onDidChangeTextEditorSelection(updateSelection)
   ]);
 };
