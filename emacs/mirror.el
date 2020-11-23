@@ -12,6 +12,9 @@
 ;; over.
 (setq sharing-websocket nil)
 
+(defun to-browser-index (loc)
+  (- loc (line-number-at-pos loc)))
+
 (defun jsonify-data-msg (contents)
   (let ((myHash (make-hash-table :test 'equal)))
     (puthash "type" "DATA" myHash)
@@ -20,20 +23,21 @@
 
 (defun jsonify-selection-msg ()
   (let ((myHash (make-hash-table :test 'equal))
-	(startPos (min (mark) (point)))
-	(linesBetween (abs (- (line-number-at-pos (mark)) (line-number-at-pos (point))))))
+	(startPos (min (mark) (point))))
     (puthash "type" "SELECTION" myHash)
     (puthash "content" (if mark-active
 			   (format "%s %s"
-				   (- startPos 1)
-				   (abs (- (mark) (point))))
+				   (to-browser-index startPos)
+				   (abs (-
+					 (to-browser-index (mark))
+					 (to-browser-index (point)))))
 			 "") myHash)
     (json-serialize myHash)))
 
 (defun jsonify-point-msg ()
   (let ((myHash (make-hash-table :test 'equal)))
     (puthash "type" "SELECTION" myHash)
-    (puthash "content" (format "%s %s" (- (point) 1) 1) myHash)
+    (puthash "content" (format "%s %s" (to-browser-index (point)) 1) myHash)
     (json-serialize myHash)))
 
 ;; Sends the contents of the current buffer over WS.
