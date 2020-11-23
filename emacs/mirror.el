@@ -25,15 +25,15 @@
     (puthash "type" "SELECTION" myHash)
     (puthash "content" (if mark-active
 			   (format "%s %s"
-				   (- startPos (line-number-at-pos startPos))
-				   (- (abs (- (mark) (point))) linesBetween))
+				   (- startPos 1)
+				   (abs (- (mark) (point))))
 			 "") myHash)
     (json-serialize myHash)))
 
 (defun jsonify-point-msg ()
   (let ((myHash (make-hash-table :test 'equal)))
     (puthash "type" "SELECTION" myHash)
-    (puthash "content" (format "%s %s" (- (point) (line-number-at-pos (point))) 1) myHash)
+    (puthash "content" (format "%s %s" (- (point) 1) 1) myHash)
     (json-serialize myHash)))
 
 ;; Sends the contents of the current buffer over WS.
