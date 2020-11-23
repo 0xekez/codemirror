@@ -136,8 +136,10 @@ func create(writer http.ResponseWriter, req *http.Request) {
 		encoder = json.NewEncoder(w)
 	)
 
-	// Listen for new clients or for closed clients
+	// Listen for new or closed listeners
 	go func() {
+		defer session.log("Listeners func ended")
+
 		for {
 			listener, open := <-session.editorChan
 			// Session closed
@@ -173,6 +175,7 @@ func create(writer http.ResponseWriter, req *http.Request) {
 	}()
 
 	go func() {
+		defer session.log("Forwarder func ended")
 		defer conn.Close()
 
 		// Send UUID join URL
@@ -240,6 +243,7 @@ func joinWS(w http.ResponseWriter, req *http.Request) {
 	}
 
 	go func() {
+		defer session.log("Joined listener func ended")
 		defer conn.Close()
 
 		var (
