@@ -28,9 +28,9 @@ function toggleFollowCursor(elem) {
 // Sets the contents of the page's code blocks to WHAT. Note that this
 // will delete any existing code in code block.
 function setCodeContents(what) {
-  code.innerText = what;
-  code.className = '';
-  hljs.highlightBlock(context);
+    let res = hljs.highlightAuto(what);
+    context.className = "hljs " + res.language;
+    context.innerHTML = res.value;
 }
 
 ws.onmessage = function (event) {
@@ -58,7 +58,17 @@ ws.onmessage = function (event) {
       return;
     }
     let start = parseInt(msg[0]);
-    let length = parseInt(msg[1]) || 1;
+      let length = parseInt(msg[1]) || 1;
+
+      // Handle case where we are at end of file.
+      if (start >= context.innerText.length) {
+	  start = context.innerText.length - 1;
+      }
+      // We can't highlight newlines so we highlight the previous
+      // non-newline character.
+      while (context.innerText[start] == "\n") {
+	  start -= 1
+      }
 
     marker.markRanges([{
       start: start,

@@ -12,8 +12,11 @@
 ;; over.
 (setq sharing-websocket nil)
 
+;; Converts an emacs index into the buffer into a browser index into
+;; the buffer.
 (defun to-browser-index (loc)
-  (- loc (line-number-at-pos loc)))
+  (- loc 1))
+;;  (- loc (line-number-at-pos loc)))
 
 (defun jsonify-data-msg (contents)
   (let ((myHash (make-hash-table :test 'equal)))
