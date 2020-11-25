@@ -45,8 +45,8 @@ ws.onmessage = function (event) {
       console.log("bad message from client");
       return;
     }
-    const start = parseInt(msg[0]);
-    const length = parseInt(msg[1]) || 1;
+    let start = parseInt(msg[0]);
+    let length = parseInt(msg[1]) || 1;
 
     marker.markRanges([{
       start: start,
