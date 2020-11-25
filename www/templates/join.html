@@ -17,15 +17,14 @@
     <!-- Our stylesheet -->
     <link rel="stylesheet" href="/public/lib/block/block.css" />
     <link rel="stylesheet" href="/public/css/style.css">
-
-    <!-- Our streaming javascript -->
-    <script src="/public/js/streamer.js"></script>
   </head>
   <body>
     <pre id="wrapper"><code id="contents"></code></pre>
-    <div class="ui">
+    <div id="ui">
       <button type="button" class="block" onclick="scrollToCursor()">Go to cursor</button>
       <button type="button" class="block" onclick="toggleFollowCursor(this)" id="follow-cursor">Follow cursor</button>
     </div>
+    <!-- Our streaming javascript -->
+    <script src="/public/js/streamer.js"></script>
   </body>
 </html>

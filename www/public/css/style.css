@@ -27,7 +27,7 @@ mark {
   background: rgba(0, 0, 255, 0.2);
 }
 
-.ui {
+#ui {
   position: fixed;
   bottom: 15px;
   right: 15px;
@@ -38,11 +38,11 @@ mark {
   align-items: center;
 }
 
-.ui > * {
+#ui > * {
   margin-bottom: 0.6rem;
 }
 
-.ui > *:last-child {
+#ui > *:last-child {
   margin-bottom: 0;
 }
 
