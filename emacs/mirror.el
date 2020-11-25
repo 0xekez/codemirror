@@ -40,21 +40,42 @@
     (puthash "content" (format "%s %s" (to-browser-index (point)) 1) myHash)
     (json-serialize myHash)))
 
+(setq last-buffer-string nil)
+
+(defun need-buffer-update ()
+  (let ((current (buffer-string)))
+    (if (equal current last-buffer-string)
+	nil
+      (setq last-buffer-string current))))
+
 ;; Sends the contents of the current buffer over WS.
 (defun send-buffer-contents (ws)
-  (websocket-send-text ws (jsonify-data-msg (buffer-string))))
+  (when (need-buffer-update)
+    (websocket-send-text ws (jsonify-data-msg (buffer-string)))))
 
 ;; Get's the point location formatted in a way that lines up with the
 ;; formatting requirements for our frontend.
 (defun get-point-loc ()
   (jsonify-point-msg))
 
+(defun get-point-state ()
+  (list (point) mark-active (mark)))
+
+(setq last-point-state (get-point-state))
+
+(defun point-needs-update ()
+  (let ((point-state (get-point-state)))
+    (if (equal point-state last-point-state)
+	nil
+      (setq last-point-state point-state))))
+
 ;; Sends the location of the cursor over WS.
 (defun send-point (ws)
-  (websocket-send-text ws
-		       (if (and (mark) mark-active)
-			   (jsonify-selection-msg)
-			 (jsonify-point-msg))))
+  (when (point-needs-update)
+    (websocket-send-text ws
+			 (if (and (mark) mark-active)
+			     (jsonify-selection-msg)
+			   (jsonify-point-msg)))))
 
 ;; Sends the buffer contents and the point information over the
 ;; sharing-websocket connection if it has been initialized.
@@ -70,6 +91,9 @@
     (princ url)))
 
 (defun handle-resend (contents)
+  ;; Reset the cached buffer information
+  (setq last-point-state nil)
+  (setq last-buffer-string nil)
   (do-websocket))
 
 (defun handle-server-message (msg)
@@ -98,6 +122,8 @@
 
 (defun start-mirroring ()
   (interactive)
+  (setq last-buffer-string nil)
+  (setq last-point-state nil)
   (init-websocket-connection "wss://mirror.noahsaso.com/create")
   (init-websocket-streaming)
   (message "started a mirroring session"))
