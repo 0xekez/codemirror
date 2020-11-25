@@ -1,35 +1,60 @@
-html, body {
-    margin: 0;
-    padding: 0;
+html,
+body {
+  margin: 0;
+  padding: 0;
 }
 
 #wrapper {
-    position: relative;
+  position: relative;
 }
 
 #cursor {
-    position: absolute;
-    background: transparent;
-    color: blue;
-    opacity: 40%;
+  position: absolute;
+  background: transparent;
+  color: blue;
+  opacity: 40%;
 }
 
 mark {
-    background: rgba(0, 0, 255, 0.2);
+  background: rgba(0, 0, 255, 0.2);
 }
 
 #ui {
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
-    padding: 15px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 
-    box-shadow: 0 9px 8px -7px rgba(0,0,0,0.3);
+  box-shadow: 0 9px 8px -7px rgba(0, 0, 0, 0.3);
 
-    background: white;
-    border-radius: 10px;
-    border: 1px solid #eee;
+  background: white;
+  border: 1px solid black;
+}
+
+#ui > * {
+  margin-bottom: 0.6rem;
+}
+
+#ui > *:last-child {
+  margin-bottom: 0;
+}
+
+button {
+  width: 100%;
+  padding: 4px;
+  border: 1px solid black;
+  border-radius: 0;
+  background-color: transparent;
+}
+
+button:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+button:active, .active {
+  background-color: rgba(0, 0, 0, 0.3);
 }
