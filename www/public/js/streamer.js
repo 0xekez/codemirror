@@ -8,7 +8,10 @@ const context = document.getElementById("contents");
 const marker = new Mark(context);
 
 function scrollToCursor() {
-  document.querySelector("mark").scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
+  const mark = document.querySelector("mark");
+  if (!mark) return;
+
+  mark.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
 }
 
 let followingCursor = false;
@@ -21,9 +24,6 @@ function toggleFollowCursor(elem) {
     elem.classList.remove('active');
   }
 }
-// Default on
-// Set followingCursor and element class appropriately
-toggleFollowCursor(document.getElementById('follow-cursor'));
 
 // Sets the contents of the page's code blocks to WHAT. Note that this
 // will delete any existing code in code block.
@@ -71,3 +71,7 @@ ws.onmessage = function (event) {
     console.log("bad message from client");
   }
 }
+
+// Default on
+// Set followingCursor and element class appropriately
+toggleFollowCursor(document.getElementById('follow-cursor'));
