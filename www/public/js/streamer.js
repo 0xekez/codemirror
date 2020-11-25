@@ -28,10 +28,9 @@ function toggleFollowCursor(elem) {
 // Sets the contents of the page's code blocks to WHAT. Note that this
 // will delete any existing code in code block.
 function setCodeContents(what) {
-  const code = document.getElementById("contents");
   code.innerText = what;
   code.className = '';
-  hljs.highlightBlock(code);
+  hljs.highlightBlock(context);
 }
 
 ws.onmessage = function (event) {
