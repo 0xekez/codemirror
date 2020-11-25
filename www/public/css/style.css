@@ -5,7 +5,15 @@ body {
 }
 
 #wrapper {
-  position: relative;
+    position: relative;
+    /*
+      Add a margin to the bottom. This serves two purposes:
+      	  1. Makes sure that there is room for the UI such that it
+             doesn't cover the text at the bottom.
+          2. Makes it slghtly more plesant to view text at the bottom
+             of a file.
+    */
+    margin-bottom: 25vh;
 }
 
 #cursor {
@@ -19,7 +27,7 @@ mark {
   background: rgba(0, 0, 255, 0.2);
 }
 
-#ui {
+.ui {
   position: fixed;
   bottom: 15px;
   right: 15px;
@@ -28,18 +36,13 @@ mark {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
-
-  box-shadow: 0 9px 8px -7px rgba(0, 0, 0, 0.3);
-
-  background: white;
-  border: 1px solid black;
 }
 
-#ui > * {
+.ui > * {
   margin-bottom: 0.6rem;
 }
 
-#ui > *:last-child {
+.ui > *:last-child {
   margin-bottom: 0;
 }
 

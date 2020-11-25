@@ -18,10 +18,12 @@ let followingCursor = false;
 function toggleFollowCursor(elem) {
   followingCursor = !followingCursor;
   if (followingCursor) {
-    elem.classList.add('active');
+      elem.classList.add('active');
+      elem.classList.add('accent');
     scrollToCursor();
   } else {
-    elem.classList.remove('active');
+      elem.classList.remove('active');
+      elem.classList.remove('accent');
   }
 }
 
