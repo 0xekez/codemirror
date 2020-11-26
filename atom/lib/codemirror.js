@@ -1,9 +1,9 @@
 'use babel';
 
-import CodemirrorView from './codemirror-view';
 import { CompositeDisposable } from 'atom';
 import WebSocket from 'ws';
 import lineColumn from 'line-column';
+import shell from 'shell';
 
 const MessageType = Object.freeze({
   data: 'DATA',
@@ -25,7 +25,7 @@ export default {
       // Create new session
       'codemirror:create-session': () => this.create(),
       // Show existing session URL
-      'codemirror:show-session-url': () => this.displayWsURL(),
+      'codemirror:show-session-url': () => this.openWSURL(),
       // Close existing session
       'codemirror:close-session': () =>
         this.ws === null
@@ -51,15 +51,10 @@ export default {
     this.ws && this.ws.close();
   },
 
-  displayWsURL() {
+  openWSURL() {
     this.wsURL === null
       ? this.displayNoActiveSession()
-      : atom.notifications.addInfo(this.wsURL, {
-        buttons: [{
-          text: 'Copy to Clipboard',
-          onDidClick: () => atom.clipboard.write(this.wsURL),
-        }]
-      });
+      : shell.openExternal(this.wsURL);
   },
 
   create() {
@@ -99,7 +94,7 @@ export default {
       // If sent URL back, display to user.
       if (msg.type === MessageType.url) {
         this.wsURL = msg.content;
-        this.displayWsURL();
+        this.openWSURL();
       } else if (msg.type === MessageType.resend) {
         // Send latest code changes (for new clients)
         updateDataAndSelection();
