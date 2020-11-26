@@ -22,12 +22,10 @@ const closeWs = () => ws?.close();
 
 const displayNoActiveSession = () => vscode.window.showErrorMessage("No active sharing session");
 
-const displayWsURL = () =>
+const openWSURL = () =>
   wsURL === null
     ? displayNoActiveSession()
-    : vscode.window
-      .showInformationMessage(wsURL, 'Copy to Clipboard')
-      .then(() => vscode.env.clipboard.writeText(wsURL || ''));
+    : vscode.env.openExternal(vscode.Uri.parse(wsURL));
 
 // Create new session
 const create = (context: vscode.ExtensionContext) => {
@@ -62,7 +60,7 @@ const create = (context: vscode.ExtensionContext) => {
     // If sent URL back, display to user.
     if (msg.type === MessageType.url) {
       wsURL = msg.content;
-      displayWsURL();
+      openWSURL();
     } else if (msg.type === MessageType.resend) {
       // Send latest code changes (for new clients)
       updateDataAndSelection();
@@ -108,7 +106,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
   // Show existing session URL
-  const showSessionUrlDisposable = vscode.commands.registerCommand('cm.showSessionUrl', displayWsURL);
+  const showSessionUrlDisposable = vscode.commands.registerCommand('cm.showSessionUrl', openWSURL);
   // Close existing session
   const closeSessionDisposable = vscode.commands.registerCommand('cm.closeSession', () =>
     ws === null
