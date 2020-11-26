@@ -10,13 +10,12 @@
 
 ;; The websocket that we are sending buffer and point information
 ;; over.
-(setq sharing-websocket nil)
+(defvar-local sharing-websocket nil)
 
 ;; Converts an emacs index into the buffer into a browser index into
 ;; the buffer.
 (defun to-browser-index (loc)
   (- loc 1))
-;;  (- loc (line-number-at-pos loc)))
 
 (defun jsonify-data-msg (contents)
   (let ((myHash (make-hash-table :test 'equal)))
@@ -43,7 +42,7 @@
     (puthash "content" (format "%s %s" (to-browser-index (point)) 1) myHash)
     (json-serialize myHash)))
 
-(setq last-buffer-string nil)
+(defvar-local last-buffer-string nil)
 
 (defun need-buffer-update ()
   (let ((current (buffer-string)))
@@ -64,7 +63,7 @@
 (defun get-point-state ()
   (list (point) mark-active (mark)))
 
-(setq last-point-state (get-point-state))
+(defvar-local last-point-state (get-point-state))
 
 (defun point-needs-update ()
   (let ((point-state (get-point-state)))

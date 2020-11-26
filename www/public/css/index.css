@@ -1,0 +1,33 @@
+html {
+    max-width: 450px;
+    margin: auto;
+    margin-top: 20px;
+    line-height: 1.25;
+    font-family: sans-serif;
+}
+
+h1 {
+    text-decoration: underline;
+}
+
+img {
+    max-width: 100%;
+}
+
+pre {
+    outline: 1px solid black;
+    padding: 2px;
+    overflow: auto;
+}
+
+#buttons {
+    display: flex;
+}
+
+#buttons .block {
+    font-size: 1em;
+}
+
+#buttons a {
+    text-decoration: none;
+}
