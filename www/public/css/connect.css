@@ -25,6 +25,7 @@ html {
 }
 
 #url {
+  flex: 1;
   font-size: 18px;
   font-family: "Trebuchet MS";
   overflow-wrap: break-word;
