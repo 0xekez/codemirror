@@ -15,18 +15,19 @@ interface Message {
 };
 
 let ws: WebSocket | null = null;
-let wsUrl: string | null = null;
+let wsURL: string | null = null;
+let wsSubscriptions: { dispose(): any }[] = [];
 
 const closeWs = () => ws?.close();
 
 const displayNoActiveSession = () => vscode.window.showErrorMessage("No active sharing session");
 
-const displayWsUrl = () =>
-  wsUrl === null
+const displayWsURL = () =>
+  wsURL === null
     ? displayNoActiveSession()
     : vscode.window
-      .showInformationMessage(wsUrl, 'Copy to Clipboard')
-      .then(() => vscode.env.clipboard.writeText(wsUrl || ''));
+      .showInformationMessage(wsURL, 'Copy to Clipboard')
+      .then(() => vscode.env.clipboard.writeText(wsURL || ''));
 
 // Create new session
 const create = (context: vscode.ExtensionContext) => {
@@ -58,27 +59,30 @@ const create = (context: vscode.ExtensionContext) => {
     const msg = JSON.parse(event.data.toString('utf8')) as Message;
     // If sent URL back, display to user.
     if (msg.type === MessageType.url) {
-      wsUrl = msg.content;
-      displayWsUrl();
+      wsURL = msg.content;
+      displayWsURL();
     } else if (msg.type === MessageType.resend) {
       // Send latest code changes (for new clients)
       updateDataAndSelection();
     }
   };
 
-  ws.onopen = () => vscode.window.showInformationMessage("Sharing session started.");
+  ws.onopen = () => {
+    vscode.window.showInformationMessage("Sharing session started.");
+    wsSubscriptions.push(...[
+      vscode.window.onDidChangeActiveTextEditor(updateDataAndSelection),
+      vscode.workspace.onDidChangeTextDocument(updateDataAndSelection),
+      vscode.window.onDidChangeTextEditorSelection(updateSelection)
+    ]);
+  };
   ws.onerror = (event) => vscode.window.showErrorMessage(event.error);
   ws.onclose = () => {
     ws = null;
-    wsUrl = null;
+    wsURL = null;
+    wsSubscriptions.forEach((sub) => sub.dispose());
+    wsSubscriptions = [];
     vscode.window.showInformationMessage("Sharing session closed.");
   };
-
-  context.subscriptions.push(...[
-    vscode.window.onDidChangeActiveTextEditor(updateDataAndSelection),
-    vscode.workspace.onDidChangeTextDocument(updateDataAndSelection),
-    vscode.window.onDidChangeTextEditorSelection(updateSelection)
-  ]);
 };
 
 export function activate(context: vscode.ExtensionContext) {
@@ -102,9 +106,9 @@ export function activate(context: vscode.ExtensionContext) {
     }
   });
   // Show existing session URL
-  const showSessionUrlDisposable = vscode.commands.registerCommand('cm.showSessionUrl', displayWsUrl);
+  const showSessionUrlDisposable = vscode.commands.registerCommand('cm.showSessionUrl', displayWsURL);
   // Close existing session
-  const closeSessionDisposable = vscode.commands.registerCommand('cm.closeSession', () => 
+  const closeSessionDisposable = vscode.commands.registerCommand('cm.closeSession', () =>
     ws === null
       ? displayNoActiveSession()
       : closeWs()
