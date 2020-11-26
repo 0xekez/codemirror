@@ -40,8 +40,8 @@ const create = (context: vscode.ExtensionContext) => {
 
     const text = vscode.window.activeTextEditor?.document?.getText() || '';
     const textLC = lineColumn(text, { origin: 0 });
-    const start = textLC.toIndex(selectionRange.start.line, selectionRange.start.character) - selectionRange.start.line;
-    let end = textLC.toIndex(selectionRange.end.line, selectionRange.end.character) - selectionRange.end.line;
+    const start = textLC.toIndex(selectionRange.start.line, selectionRange.start.character);
+    let end = textLC.toIndex(selectionRange.end.line, selectionRange.end.character);
     if (end < 0) {end = text.length;}
 
     send(MessageType.selection, `${start} ${end - start}`);
