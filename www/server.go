@@ -19,6 +19,7 @@ import (
 // Regex compilations
 var (
 	createRe = regexp.MustCompile(`/create.*$`)
+	connectRe = regexp.MustCompile(`/connect/`)
 )
 
 const (
@@ -179,7 +180,7 @@ func create(writer http.ResponseWriter, req *http.Request) {
 		defer conn.Close()
 
 		// Send UUID join URL
-		url := fmt.Sprintf("http://%s%s", req.Host, createRe.ReplaceAllString(req.URL.RequestURI(), fmt.Sprintf("/join/%s", session.uuid)))
+		url := fmt.Sprintf("http://%s%s", req.Host, createRe.ReplaceAllString(req.URL.RequestURI(), fmt.Sprintf("/connect/%s", session.uuid)))
 		sendMessage(w, encoder, message{messageTypeURL, url})
 
 		for {
@@ -218,16 +219,26 @@ func create(writer http.ResponseWriter, req *http.Request) {
 	}()
 }
 
+func getAliveSession(w http.ResponseWriter, uuid string) (*session, bool) {
+	sessionsMutex.Lock()
+	session, ok := sessions[uuid]
+	sessionsMutex.Unlock()
+
+	if !ok || !session.alive {
+		fmt.Println("No session found for", uuid)
+		w.Write([]byte(fmt.Sprintf("No session found for %s", uuid)))
+		return nil, false
+	}
+
+	return session, true
+}
+
 func joinWS(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	uuid := vars["uuid"]
 
-	sessionsMutex.Lock()
-	session, ok := sessions[uuid]
-	sessionsMutex.Unlock()
-	if !ok || !session.alive {
-		fmt.Println("No session found for", uuid)
-		w.Write([]byte(fmt.Sprintf("No session found for %s", uuid)))
+	session, ok := getAliveSession(w, uuid)
+	if !ok {
 		return
 	}
 
@@ -278,12 +289,8 @@ func join(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	uuid := vars["uuid"]
 
-	sessionsMutex.Lock()
-	s, ok := sessions[uuid]
-	sessionsMutex.Unlock()
-	if !ok || !s.alive {
-		fmt.Println("No session found for", uuid)
-		w.Write([]byte(fmt.Sprintf("No session found for %s", uuid)))
+	_, ok := getAliveSession(w, uuid)
+	if !ok {
 		return
 	}
 
@@ -297,6 +304,26 @@ func join(w http.ResponseWriter, req *http.Request) {
 	t.Execute(w, url)
 }
 
+// Web interface
+func connect(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	uuid := vars["uuid"]
+
+	_, ok := getAliveSession(w, uuid)
+	if !ok {
+		return
+	}
+
+	t, err := template.ParseFiles("./templates/connect.html")
+	if err != nil {
+		fmt.Println("Template parse err:", err)
+		w.Write([]byte("An unexpected error occurred"))
+	}
+
+	url := fmt.Sprintf("http://%s%s", req.Host, connectRe.ReplaceAllString(req.URL.RequestURI(), "/join/"))
+	t.Execute(w, url)
+}
+
 func main() {
 	fmt.Println("Starting...")
 
@@ -304,6 +331,7 @@ func main() {
 
 	router := mux.NewRouter()
 	router.HandleFunc("/create", create)
+	router.HandleFunc("/connect/{uuid}", connect)
 	router.HandleFunc("/join/{uuid}", join)
 	router.HandleFunc("/ws/{uuid}", joinWS)
 

@@ -1,0 +1,24 @@
+<!doctype html>
+<html class="hljs">
+  <head>
+    <meta name="viewport" content="width=device-width">
+    <meta charset="utf-8">
+    <title>codemirror</title>
+
+    <!-- WS -->
+    <script type="text/javascript">
+      const WEBSOCKET_URL = "{{.}}";
+    </script>
+
+    <!-- Our stylesheet -->
+    <link rel="stylesheet" href="/public/lib/block/block.css" />
+    <link rel="stylesheet" href="/public/css/connect.css">
+  </head>
+  <body>
+    <div class="block" id="ui" onclick="copyToClipboard()">
+      <img id="icon" src="/public/img/copy.svg" />
+      <p id="url">{{.}}</p>
+    </div>
+    <script src="/public/js/connect.js"></script>
+  </body>
+</html>

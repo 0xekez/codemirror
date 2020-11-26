@@ -16,13 +16,6 @@ body {
     margin-bottom: 25vh;
 }
 
-#cursor {
-  position: absolute;
-  background: transparent;
-  color: blue;
-  opacity: 40%;
-}
-
 mark {
   background: rgba(0, 0, 255, 0.2);
 }
@@ -44,20 +37,4 @@ mark {
 
 #ui > *:last-child {
   margin-bottom: 0;
-}
-
-button {
-  width: 100%;
-  padding: 4px;
-  border: 1px solid black;
-  border-radius: 0;
-  background-color: transparent;
-}
-
-button:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-button:active, .active {
-  background-color: rgba(0, 0, 0, 0.3);
 }
