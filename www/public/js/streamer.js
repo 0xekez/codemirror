@@ -70,6 +70,7 @@ ws.onmessage = function (event) {
       // non-newline character.
       while (context.innerText[start] == "\n") {
 	  start -= 1
+	  length += 1
       }
 
     marker.markRanges([{
