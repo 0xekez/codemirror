@@ -18,7 +18,8 @@ html {
 
 #ui > p {
   font-size: 18px;
-  font-family: 'Trebuchet MS';
+  font-family: "Trebuchet MS";
+  word-wrap: break-word;
 }
 
 #ui > img {
