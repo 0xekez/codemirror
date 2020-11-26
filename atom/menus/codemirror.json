@@ -1,0 +1,26 @@
+{
+  "menu": [
+    {
+      "label": "Packages",
+      "submenu": [
+        {
+          "label": "codemirror",
+          "submenu": [
+            {
+              "label": "CM: Create New Session",
+              "command": "codemirror:create-session"
+            },
+            {
+              "label": "CM: Show Session URL",
+              "command": "codemirror:show-session-url"
+            },
+            {
+              "label": "CM: Close Session",
+              "command": "codemirror:close-session"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

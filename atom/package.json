@@ -1,0 +1,23 @@
+{
+  "name": "codemirror",
+  "main": "./lib/codemirror",
+  "version": "0.0.0",
+  "description": "A short description of your package",
+  "keywords": [],
+  "activationCommands": {
+    "atom-workspace": [
+      "codemirror:create-session",
+      "codemirror:show-session-url",
+      "codemirror:close-session"
+    ]
+  },
+  "repository": "https://github.com/ZekeMedley/codemirror",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0 <2.0.0"
+  },
+  "dependencies": {
+    "line-column": "^1.0.2",
+    "ws": "^7.4.0"
+  }
+}
