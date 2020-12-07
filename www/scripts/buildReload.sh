@@ -2,4 +2,5 @@
 
 go install
 go build server.go
-sudo service codemirror restart
+service codemirror restart
+
