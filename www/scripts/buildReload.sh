@@ -5,5 +5,5 @@ source ~/.profile
 
 go build server.go
 
-/bin/systemctl restart codemirror
+sudo /bin/systemctl restart codemirror
 
