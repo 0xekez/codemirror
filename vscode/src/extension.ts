@@ -29,7 +29,7 @@ const openWSURL = () =>
 
 // Create new session
 const create = (context: vscode.ExtensionContext) => {
-  ws = new WebSocket('wss://mirror.noahsaso.com/create');
+  ws = new WebSocket('wss://mirror.chmod4.com/create');
 
   const send = (type: MessageType, content: string) => ws?.send(JSON.stringify({ type, content }));
   const updateSelection = () => {

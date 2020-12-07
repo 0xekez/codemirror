@@ -58,7 +58,7 @@ export default {
   },
 
   create() {
-    this.ws = new WebSocket('wss://mirror.noahsaso.com/create');
+    this.ws = new WebSocket('wss://mirror.chmod4.com/create');
 
     const send = (type, content) => this.ws && this.ws.send(JSON.stringify({ type, content }));
     const updateSelection = () => {

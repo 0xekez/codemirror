@@ -128,7 +128,7 @@
   (interactive)
   (setq last-buffer-string nil)
   (setq last-point-state nil)
-  (init-websocket-connection "wss://mirror.noahsaso.com/create")
+  (init-websocket-connection "wss://mirror.chmod4.com/create")
   (init-websocket-streaming)
   (message "started a mirroring session"))
 

@@ -8,7 +8,7 @@ import webbrowser
 class EventDump(sublime_plugin.EventListener):
 	is_mirroring = False
 	socket = None
-	create_uri = "wss://mirror.noahsaso.com/create"
+	create_uri = "wss://mirror.chmod4.com/create"
 	mirror_uri = ""
 	listener_thread = None
 
@@ -43,7 +43,7 @@ class EventDump(sublime_plugin.EventListener):
 			print("bad message type from server: {}", message["TYPE"])
 
 	def _start_mirroring():
-		EventDump.socket = websocket.WebSocketApp("wss://mirror.noahsaso.com/create",
+		EventDump.socket = websocket.WebSocketApp("wss://mirror.chmod4.com/create",
                               on_message = EventDump.handle_server_message,
                               on_error = lambda ws, e: EventDump.stop_mirroring(),
                               on_close = lambda ws: EventDump.stop_mirroring())
