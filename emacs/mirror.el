@@ -10,7 +10,7 @@
 
 ;; The websocket that we are sending buffer and point information
 ;; over.
-(defvar-local sharing-websocket nil)
+(setq sharing-websocket nil)
 
 ;; Converts an emacs index into the buffer into a browser index into
 ;; the buffer.
@@ -42,7 +42,7 @@
     (puthash "content" (format "%s %s" (to-browser-index (point)) 1) myHash)
     (json-serialize myHash)))
 
-(defvar-local last-buffer-string nil)
+(setq last-buffer-string nil)
 
 (defun need-buffer-update ()
   (let ((current (buffer-string)))
@@ -63,7 +63,7 @@
 (defun get-point-state ()
   (list (point) mark-active (mark)))
 
-(defvar-local last-point-state (get-point-state))
+(setq last-point-state (get-point-state))
 
 (defun point-needs-update ()
   (let ((point-state (get-point-state)))
@@ -79,6 +79,7 @@
 			     (jsonify-selection-msg)
 			   (jsonify-point-msg)))))
 
+
 ;; Sends the buffer contents and the point information over the
 ;; sharing-websocket connection if it has been initialized.
 (defun do-websocket ()
@@ -87,10 +88,11 @@
     (send-point sharing-websocket)))
 
 (defun handle-url (url)
-  (with-temp-buffer-window "connection initialized" nil (lambda (a b) ())
-    (princ "Your new mirroring session is ready. Others can view your session\n")
-    (princ "at the following url:\n\n")
-    (princ url)))
+  (browse-url url))
+  ;; (with-temp-buffer-window "connection initialized" nil (lambda (a b) ())
+  ;;   (princ "Your new mirroring session is ready. Others can view your session\n")
+  ;;   (princ "at the following url:\n\n")
+  ;;   (princ url)))
 
 (defun handle-resend (contents)
   ;; Reset the cached buffer information

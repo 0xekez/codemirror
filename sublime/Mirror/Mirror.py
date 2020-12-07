@@ -3,6 +3,7 @@ from . import websocket
 import ssl
 import json
 import threading
+import webbrowser
 
 class EventDump(sublime_plugin.EventListener):
 	is_mirroring = False
@@ -35,6 +36,7 @@ class EventDump(sublime_plugin.EventListener):
 		if message["type"] == "URL":
 			EventDump.mirror_uri = message["content"]
 			print("started mirroring on {}".format(EventDump.mirror_uri))
+			webbrowser.open(EventDump.mirror_uri)
 		elif message["type"] == "RESEND":
 			EventDump.send_view(EventDump.socket, sublime.active_window().active_view())
 		else:
