@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"os"
 	"text/template"
 
 	"github.com/gobwas/ws"
@@ -333,6 +334,12 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 		fp += "/index.html"
 	}
 	fmt.Println("Serving:", fp)
+
+	// If path doesn't exist, show 404
+	if _, err := os.Stat(fp); os.IsNotExist(err) {
+		http.NotFound(w, r)
+		return
+	}
 
 	tmpl, _ := template.ParseFiles(lp, fp)
 	tmpl.ExecuteTemplate(w, "layout", nil)
