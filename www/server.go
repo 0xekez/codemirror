@@ -333,13 +333,14 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	if !strings.HasSuffix(fp, ".html") {
 		fp += "/index.html"
 	}
-	fmt.Println("Serving:", fp)
 
 	// If path doesn't exist, show 404
 	if _, err := os.Stat(fp); os.IsNotExist(err) {
+		fmt.Println("[404]", fp)
 		http.NotFound(w, r)
 		return
 	}
+	fmt.Println("[200]", fp)
 
 	tmpl, _ := template.ParseFiles(lp, fp)
 	tmpl.ExecuteTemplate(w, "layout", nil)
