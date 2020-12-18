@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -18,7 +19,7 @@ import (
 
 // Regex compilations
 var (
-	createRe = regexp.MustCompile(`/create.*$`)
+	createRe  = regexp.MustCompile(`/create.*$`)
 	connectRe = regexp.MustCompile(`/connect/`)
 )
 
@@ -324,6 +325,19 @@ func connect(w http.ResponseWriter, req *http.Request) {
 	t.Execute(w, url)
 }
 
+func serveTemplate(w http.ResponseWriter, r *http.Request) {
+	lp := filepath.Join("templates", "layout.html")
+
+	fp := filepath.Join("templates", filepath.Clean(r.URL.Path))
+	if !strings.HasSuffix(fp, ".html") {
+		fp += "/index.html"
+	}
+	fmt.Println("Serving:", fp)
+
+	tmpl, _ := template.ParseFiles(lp, fp)
+	tmpl.ExecuteTemplate(w, "layout", nil)
+}
+
 func main() {
 	fmt.Println("Starting...")
 
@@ -335,9 +349,12 @@ func main() {
 	router.HandleFunc("/join/{uuid}", join)
 	router.HandleFunc("/ws/{uuid}", joinWS)
 
-	// Setup file server
-	fs := http.FileServer(http.Dir("public"))
-	router.PathPrefix("/public").Handler(http.StripPrefix("/public/", fs))
+	// Setup public file folder
+	fsPublic := http.FileServer(http.Dir("public"))
+	router.PathPrefix("/public").Handler(http.StripPrefix("/public/", fsPublic))
+
+	// Setup static html pages
+	router.PathPrefix("/").Handler(http.HandlerFunc(serveTemplate))
 
 	http.Handle("/", router)
 

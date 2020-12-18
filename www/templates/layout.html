@@ -1,0 +1,25 @@
+{{ define "layout" }}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width" />
+    <meta charset="utf-8" />
+    <title>{{ template "title" }}</title>
+    <link rel="stylesheet" href="/public/lib/block/block.css" />
+    <link rel="stylesheet" href="/public/css/main.css" />
+  </head>
+  <body>
+    <div class="content">
+      <nav>
+        <a href="/how">how it works</a>
+        <a href="/pricing">pricing</a>
+        <a href="/about">about</a>
+      </nav>
+      {{ template "header" }}
+      <div class="bubble" id="bubbleone"></div>
+      <div class="bubble" id="bubbletwo"></div>
+    </div>
+    {{ template "body" }}
+  </body>
+</html>
+{{ end }}
