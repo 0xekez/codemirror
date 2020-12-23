@@ -5,8 +5,7 @@ import com.chmod4.mirror.listeners.MyDocumentListener
 import com.chmod4.mirror.listeners.MyFileEditorManagerListener
 import com.chmod4.mirror.listeners.MySelectionListener
 import com.intellij.ide.BrowserUtil
-import com.intellij.notification.NotificationDisplayType
-import com.intellij.notification.NotificationGroup
+import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
@@ -44,7 +43,7 @@ object Session {
     var lastSelectedTextEditor: Editor? = null
 
     var project: Project? = null
-    private val notifGroup = NotificationGroup("Session Notification Group", NotificationDisplayType.BALLOON, true)
+    private val notifGroup = NotificationGroupManager.getInstance().getNotificationGroup("Session Notification Group")
 
     fun isConnected() = ws != null || wsURL != null
 

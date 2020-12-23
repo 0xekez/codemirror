@@ -10,6 +10,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <applicationService serviceImplementation="com.chmod4.mirror.services.MyApplicationService"/>
         <projectService serviceImplementation="com.chmod4.mirror.services.MyProjectService"/>
+        <notificationGroup id="Session Notification Group" displayType="BALLOON" key="notification.group.name" />
     </extensions>
 
     <applicationListeners>
