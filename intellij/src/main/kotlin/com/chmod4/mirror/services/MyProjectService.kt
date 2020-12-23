@@ -12,5 +12,6 @@ class MyProjectService(project: Project) : Disposable {
 
     override fun dispose() {
         println("Project service disposed")
+        Session.close()
     }
 }
