@@ -1,1 +1,1 @@
-rootProject.name = "mirror"
+rootProject.name = "chmod4.mirror"
