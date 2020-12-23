@@ -9,7 +9,9 @@ import com.intellij.notification.NotificationDisplayType
 import com.intellij.notification.NotificationGroup
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
+import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
@@ -39,11 +41,20 @@ object Session {
     private var ws: WebSocket? = null
     var wsURL: String? = null
     var disposable: Disposable? = null
+    var lastSelectedTextEditor: Editor? = null
 
     var project: Project? = null
     private val notifGroup = NotificationGroup("Session Notification Group", NotificationDisplayType.BALLOON, true)
 
     fun isConnected() = ws != null || wsURL != null
+
+    fun init(project: Project) {
+        this.project = project
+        // on selected open editor change
+        project.messageBus
+            .connect(project)
+            .subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, MyFileEditorManagerListener())
+    }
 
     fun create() {
         close()
@@ -64,26 +75,23 @@ object Session {
     }
 
     fun updateSelection() {
-        if (project == null) {
+        if (project == null || lastSelectedTextEditor == null) {
             return
         }
 
-        val editor = FileEditorManager.getInstance(project!!).selectedTextEditor ?: return
-
-        val start = editor.selectionModel.selectionStart
-        var length = editor.selectionModel.selectionEnd - start
+        val start = lastSelectedTextEditor!!.selectionModel.selectionStart
+        val length = lastSelectedTextEditor!!.selectionModel.selectionEnd - start
         val selection = String.format("%d %d", start, length)
 
         sendMessage(MessageType.SELECTION, selection)
     }
 
     fun updateDataAndSelection() {
-        if (project == null) {
+        if (project == null || lastSelectedTextEditor == null) {
             return
         }
 
-        val editor = FileEditorManager.getInstance(project!!).selectedTextEditor ?: return
-        val text = editor.document.text
+        val text = lastSelectedTextEditor!!.document.text
         sendMessage(MessageType.DATA, text)
         updateSelection()
     }
@@ -143,10 +151,6 @@ object Session {
             multicaster.addDocumentListener(MyDocumentListener(), disposable!!)
             multicaster.addSelectionListener(MySelectionListener(), disposable!!)
             multicaster.addCaretListener(MyCaretListener(), disposable!!)
-            // on selected open editor change
-            project?.messageBus
-                ?.connect(disposable!!)
-                ?.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, MyFileEditorManagerListener())
 
             sendNotification("Mirroring session started.", "", NotificationType.INFORMATION)
         }
@@ -157,7 +161,9 @@ object Session {
                 wsURL = msg.content
                 openWSURL()
             } else if (msg.type == MessageType.RESEND) {
-//                updateDataAndSelection()
+                ApplicationManager.getApplication().invokeLater(Runnable {
+                    updateDataAndSelection()
+                })
             }
 
             webSocket?.request(1)

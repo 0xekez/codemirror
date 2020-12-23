@@ -7,7 +7,7 @@ import com.intellij.openapi.Disposable
 class MyProjectService(project: Project) : Disposable {
     init {
         println(MyBundle.message("projectService", project.name))
-        Session.project = project
+        Session.init(project)
     }
 
     override fun dispose() {
