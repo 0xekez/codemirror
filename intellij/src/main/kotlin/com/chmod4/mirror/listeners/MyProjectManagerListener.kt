@@ -4,7 +4,6 @@ import com.intellij.openapi.components.service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.ProjectManagerListener
 import com.chmod4.mirror.services.MyProjectService
-import com.chmod4.mirror.services.Session
 
 internal class MyProjectManagerListener : ProjectManagerListener {
 

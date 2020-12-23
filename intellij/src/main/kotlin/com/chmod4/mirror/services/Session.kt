@@ -13,7 +13,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.service
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
@@ -21,11 +20,11 @@ import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.WebSocket
 import java.util.concurrent.CompletionStage
-import kotlinx.serialization.*
-import kotlinx.serialization.json.*
-import java.util.Timer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.util.concurrent.CompletableFuture
-import kotlin.concurrent.schedule
 
 enum class MessageType(val value: String) {
     DATA("DATA"),
@@ -37,6 +36,7 @@ enum class MessageType(val value: String) {
 @Serializable
 data class Message(val type: MessageType, val content: String)
 
+@Suppress("TooManyFunctions")
 object Session {
     private var ws: WebSocket? = null
     var wsURL: String? = null
