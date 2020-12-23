@@ -16,15 +16,15 @@ import com.intellij.openapi.editor.EditorFactory
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Disposer
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.WebSocket
-import java.util.concurrent.CompletionStage
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.net.URI
+import java.net.http.HttpClient
+import java.net.http.WebSocket
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.CompletionStage
 
 enum class MessageType(val value: String) {
     DATA("DATA"),
@@ -161,9 +161,11 @@ object Session {
                 wsURL = msg.content
                 openWSURL()
             } else if (msg.type == MessageType.RESEND) {
-                ApplicationManager.getApplication().invokeLater(Runnable {
-                    updateDataAndSelection()
-                })
+                ApplicationManager.getApplication().invokeLater(
+                    Runnable {
+                        updateDataAndSelection()
+                    }
+                )
             }
 
             webSocket?.request(1)

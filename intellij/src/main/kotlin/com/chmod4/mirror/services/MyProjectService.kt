@@ -1,8 +1,8 @@
 package com.chmod4.mirror.services
 
-import com.intellij.openapi.project.Project
 import com.chmod4.mirror.MyBundle
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.project.Project
 
 class MyProjectService(project: Project) : Disposable {
     init {
