@@ -1,0 +1,41 @@
+<idea-plugin>
+    <id>com.chmod4.mirror</id>
+    <name>chmod4.mirror</name>
+    <vendor>chmod4</vendor>
+
+    <!-- Product and plugin compatibility requirements -->
+    <!-- https://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService serviceImplementation="com.chmod4.mirror.services.MyApplicationService"/>
+        <projectService serviceImplementation="com.chmod4.mirror.services.MyProjectService"/>
+    </extensions>
+
+    <applicationListeners>
+        <listener class="com.chmod4.mirror.listeners.MyProjectManagerListener"
+                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
+    </applicationListeners>
+
+    <actions>
+        <group id="org.intellij.sdk.action.GroupedActions" text="chmod4.mirror" popup="true">
+            <add-to-group group-id="ToolsMenu" />
+
+            <action id="com.chmod4.mirror.actions.CreateSessionAction"
+                    class="com.chmod4.mirror.actions.CreateSessionAction"
+                    text="Create New Session"
+                    description="Start a new mirroring session"
+            />
+            <action id="com.chmod4.mirror.actions.ShowSessionAction"
+                    class="com.chmod4.mirror.actions.ShowSessionAction"
+                    text="View Session Info"
+                    description="Open existing session info page"
+            />
+            <action id="com.chmod4.mirror.actions.CloseSessionAction"
+                    class="com.chmod4.mirror.actions.CloseSessionAction"
+                    text="Close Session"
+                    description="Stop existing mirroring session"
+            />
+        </group>
+    </actions>
+</idea-plugin>
