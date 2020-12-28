@@ -11,7 +11,7 @@
 	],
 	"activationEvents": [
 		"onCommand:cm.createSession",
-		"onCommand:cm.showSessionUrl",
+		"onCommand:cm.viewSession",
 		"onCommand:cm.closeSession"
 	],
 	"main": "./dist/extension.js",
@@ -19,15 +19,15 @@
 		"commands": [
 			{
 				"command": "cm.createSession",
-				"title": "CM: Create New Session"
+				"title": "chmod4.mirror: Create New Session"
 			},
 			{
-				"command": "cm.showSessionUrl",
-				"title": "CM: Show Session URL"
+				"command": "cm.viewSession",
+				"title": "chmod4.mirror: View Session Info"
 			},
 			{
 				"command": "cm.closeSession",
-				"title": "CM: Close Session"
+				"title": "chmod4.mirror: Close Session"
 			}
 		]
 	},
