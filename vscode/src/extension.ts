@@ -18,9 +18,9 @@ let ws: WebSocket | null = null;
 let wsURL: string | null = null;
 let wsSubscriptions: { dispose(): any }[] = [];
 
-const closeWs = () => ws?.close();
+const closeWS = () => ws?.close();
 
-const displayNoActiveSession = () => vscode.window.showErrorMessage("No active sharing session");
+const displayNoActiveSession = () => vscode.window.showErrorMessage("No active mirroring session.");
 
 const openWSURL = () =>
   wsURL === null
@@ -28,7 +28,9 @@ const openWSURL = () =>
     : vscode.env.openExternal(vscode.Uri.parse(wsURL));
 
 // Create new session
-const create = (context: vscode.ExtensionContext) => {
+const createWS = () => {
+  closeWS();
+
   ws = new WebSocket('wss://mirror.chmod4.com/create');
 
   const send = (type: MessageType, content: string) => ws?.send(JSON.stringify({ type, content }));
@@ -68,7 +70,7 @@ const create = (context: vscode.ExtensionContext) => {
   };
 
   ws.onopen = () => {
-    vscode.window.showInformationMessage("Sharing session started.");
+    vscode.window.showInformationMessage("Mirroring session started.");
     wsSubscriptions.push(...[
       vscode.window.onDidChangeActiveTextEditor(updateDataAndSelection),
       vscode.workspace.onDidChangeTextDocument(updateDataAndSelection),
@@ -81,45 +83,28 @@ const create = (context: vscode.ExtensionContext) => {
     wsURL = null;
     wsSubscriptions.forEach((sub) => sub.dispose());
     wsSubscriptions = [];
-    vscode.window.showInformationMessage("Sharing session closed.");
+    vscode.window.showInformationMessage("Mirroring session closed.");
   };
 };
 
 export function activate(context: vscode.ExtensionContext) {
   // Create new session
-  const createSessionDisposable = vscode.commands.registerCommand('cm.createSession', () => {
-    if (ws) {
-      vscode.window
-        .showInformationMessage(
-          'There is already an active sharing session. Would you like to close it and start a new one?',
-          'No, Keep Existing',
-          'Yes, Close Existing'
-        )
-        .then(selected => {
-          if (selected?.startsWith('Yes')) {
-            ws?.close();
-            create(context);
-          }
-        });
-    } else {
-      create(context);
-    }
-  });
+  const createSessionDisposable = vscode.commands.registerCommand('cm.createSession', createWS);
   // Show existing session URL
-  const showSessionUrlDisposable = vscode.commands.registerCommand('cm.showSessionUrl', openWSURL);
+  const viewSessionDisposable = vscode.commands.registerCommand('cm.viewSession', openWSURL);
   // Close existing session
   const closeSessionDisposable = vscode.commands.registerCommand('cm.closeSession', () =>
     ws === null
       ? displayNoActiveSession()
-      : closeWs()
+      : closeWS()
   );
 
   context.subscriptions.push(createSessionDisposable);
-  context.subscriptions.push(showSessionUrlDisposable);
+  context.subscriptions.push(viewSessionDisposable);
   context.subscriptions.push(closeSessionDisposable);
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {
-  closeWs();
+  closeWS();
 }
