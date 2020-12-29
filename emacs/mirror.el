@@ -79,11 +79,10 @@
 			     (jsonify-selection-msg)
 			   (jsonify-point-msg)))))
 
-
 ;; Sends the buffer contents and the point information over the
 ;; sharing-websocket connection if it has been initialized.
 (defun do-websocket ()
-  (when sharing-websocket
+  (when (websocket-openp sharing-websocket)
     (send-buffer-contents sharing-websocket)
     (send-point sharing-websocket)))
 

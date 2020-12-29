@@ -52,6 +52,14 @@ nav a {
     margin-bottom: 20px;
 }
 
+.med-text {
+    margin-top: 0;
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.3;
+    margin-bottom: 20px;
+}
+
 .info {
     text-align: center;
     font-weight: bold;
