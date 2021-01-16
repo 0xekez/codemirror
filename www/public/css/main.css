@@ -147,4 +147,5 @@ grad {
 pre {
     outline: 2px solid black;
     padding: 5px;
+    overflow: auto;
 }
