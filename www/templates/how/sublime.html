@@ -1,0 +1,36 @@
+{{ define "title" }}chmod4{{ end }} {{ define "header" }}
+<h1 id="sublime-installation">Sublime Installation</h1>
+<p class="big-text">Getting set up using Sublime is simple and easy. Here’s how:</p>
+<img id="demo" src="/public/img/emacs-preview.jpg">
+{{ end }} {{ define "body" }}
+<div class="content body-text">
+  <ol>
+    <li>
+      Download the <code>Mirror.sublime-package</code> file by clicking the button
+      below and place it somewhere you'll remember.
+      <a href="/public/content/Mirror.sublime-package" download="Mirror.sublime_package">
+	    <button class="block body-text" style="margin-left: 0">Download</button>
+      </a>
+    </li>
+    <li>
+      Open up your Sublime Text and from the top menu click on
+      <code>Sublime Text -> Preferences -> Browse Packages</code>.
+    </li>
+    <li>
+      From there go up a directory and open the <code>Installed
+	Packages</code> file.
+    </li>
+    <li>
+      Move <code>Mirror.sublime-package</code> into <code>Installed Packages</code> and you're
+   done!
+    </li>
+  </ol>
+  <h2 id="usage">Usage</h2>
+  <ul>
+    <li>Start mirroring: run the <code>start_mirroring</code> command
+    or click "Start Mirroring" in the <code>tools</code> menu.</li>
+    <li>Stop mirroring: run the <code>stop_mirroring</code> command or
+    click "Stop Mirroring" in the <code>tools</code> menu</li>
+  </ul>
+</div>
+{{ end }}
