@@ -1,0 +1,10 @@
+[{
+  "id": "startmirroring",
+  "caption": "Start a mirroring session",
+  "command": "start_mirroring"
+},
+{
+	"id": "stopmirroring",
+	"caption": "Stop the current mirroring session",
+	"command": "stop_mirroring"
+}]

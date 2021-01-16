@@ -1,0 +1,10 @@
+[
+	{
+		"id": "edit",
+		"children":
+		[
+			{"command": "start_mirroring"},
+			{"command": "stop_mirroring"}
+		]
+	}
+]
