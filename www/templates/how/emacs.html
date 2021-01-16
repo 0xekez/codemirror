@@ -1,0 +1,37 @@
+{{ define "title" }}chmod4{{ end }} {{ define "header" }}
+<h1 id="emacs-installation">Emacs Installation</h1>
+<p class="big-text">Getting set up using Emacs is simple and easy. Here’s how:</p>
+<img id="demo" src="/public/img/emacs-preview.jpg">
+{{ end }} {{ define "body" }}
+<div class="content body-text">
+  <ol>
+    <li>
+      Download the <code>mirror.el</code> file by clicking the button
+      below and place it somewhere you'll remember. For the purposes
+      of this example, lets say that we've downloaded it to
+      <code>~/.emacs.d/lisp/mirror.el</code>.
+      <a href="/public/content/mirror.el" download>
+	    <button class="block body-text" style="margin-left: 0">Download</button>
+      </a>
+    </li>
+    <li>
+      Install the Emacs websocket package by running <code>M-x
+      package-install RET websocket RET</code>
+    </li>
+    <li>
+      Add the installation directory to your
+      emacs <a href="https://www.emacswiki.org/emacs/LoadPath">Load
+      Path</a> by adding the following to your <code>init.el</code>
+      or <code>.emacs</code> file:
+      <pre><code>(add-to-list 'load-path "~/.emacs.d/lisp")
+(require 'mirror)
+</code></pre>
+    </li>
+  </ol>
+  <h2 id="usage">Usage</h2>
+  <ul>
+    <li>Start mirroring: <code>M-x start-mirroring</code></li>
+    <li>Stop mirroring: <code>M-x stop-mirroring</code></li>
+  </ul>
+</div>
+{{ end }}

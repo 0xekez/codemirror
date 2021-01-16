@@ -1,6 +1,6 @@
 # Emacs Installation
 
-Getting set up using emacs is simple and easy. Here's how:
+Getting set up using Emacs is simple and easy. Here's how:
 
 ## Installation
 
@@ -8,15 +8,16 @@ Getting set up using emacs is simple and easy. Here's how:
    somewhere you'll remember. For the purposes of this example, lets
    say that we've downloaded it to `~/.emacs.d/lisp/mirror.el`.
 
-3. Install the Emacs websocket package by running `M-x package-install
+2. Install the Emacs websocket package by running `M-x package-install
    RET websocket RET`
 
-2. Add the installation directory to your emacs
+3. Add the installation directory to your emacs
    [`load-path`](https://www.emacswiki.org/emacs/LoadPath) by adding
    the following to your `init.el` or `.emacs` file:
 
    ```lisp
    (add-to-list 'load-path "~/.emacs.d/lisp")
+   (require 'mirror)
    ```
 
 ## Usage

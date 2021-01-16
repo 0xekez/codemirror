@@ -1,6 +1,6 @@
 [
 	{
-		"id": "edit",
+		"id": "tools",
 		"children":
 		[
 			{"command": "start_mirroring"},
