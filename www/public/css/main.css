@@ -91,6 +91,17 @@ grad {
     outline: 2px solid black;
 }
 
+#header-image {
+    margin: auto;
+    outline: 2px solid black;
+    display: flex;
+    justify-content: center;
+    margin-top: 44px;
+    margin-bottom: 44px;
+    max-width: 100%;
+    height: auto;
+}
+
 .bubble {
     background-color: green;
     background-image: linear-gradient(transparent, #0d9e6f);
