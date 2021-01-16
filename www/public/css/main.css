@@ -117,6 +117,10 @@ grad {
     margin-bottom: 20px;
 }
 
+#buttons a {
+    text-decoration: none;
+}
+
 #buttons button {
     font-size: 20px;
 }
