@@ -6,7 +6,7 @@ Getting set up using Emacs is simple and easy. Here's how:
 
 1. Download the [mirror.el](mirror.el) file in this repo and place it
    somewhere you'll remember. For the purposes of this example, lets
-   say that we've downloaded it to `~/.emacs.d/lisp/mirror.el`.
+   say that we've downloaded it to `~/.emacs.d/lisp/mirror.el`.inde
 
 2. Install the Emacs websocket package by running `M-x package-install
    RET websocket RET`
