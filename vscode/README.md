@@ -10,10 +10,6 @@ Stop sharing your code with a live video or online editor. Use chmod4 and stay i
 
 `Close Session`: close the active session
 
-## Known Issues
-
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
 ## Release Notes
 
 ### 0.0.1
