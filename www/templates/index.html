@@ -4,7 +4,6 @@
   Stop sharing your code with a live video or online editor. Use chmod4 and stay
   in your editor of choice while streaming your work to a private link.
 </p>
-<a href="#buttons" style="text-decoration: none;"><button id="getstarted" class="block accent">Get Started</button></a>
 {{ end }} {{ define "body" }}
 <img id="header-image" src="/public/img/prettydemo.jpg">
 <div class="content">
@@ -14,14 +13,15 @@
     yours below to get started.
   </p>
   <div id="buttons">
-    <a href="how/emacs.html"><button class="block">Emacs</button></a>
-    <a href="how/sublime.html"><button class="block">Sublime</button></a>
-    <button class="block">VSCode</button>
+    <a href="how/emacs.html" class="block">Emacs</a>
+    <a href="how/sublime.html" class="block">Sublime</a>
+    <a href="how/vscode.html" class="block">VS Code</a>
     <button class="block">Atom</button>
     <button class="block">IntelliJ</button>
   </div>
-  <p class="info">
-    Don't see your editor? <a href="https://discord.gg/vX9WTQxtMY">Get in touch!</a>
+  <p id="need-editor">
+    Don't see your editor?
+    <a href="mailto:chmodfour@gmail.com">Shoot us an email!</a>
   </p>
 </div>
 {{ end }}

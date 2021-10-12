@@ -1,6 +1,6 @@
 Reflects code being edited in browser to web url. The url can be
 shared and visitors will see whatever is being edited in real time
-with cursor position and selection highliting. Intended to be used as
+with cursor position and selection highlighting. Intended to be used as
 a replacement for squinting at code over a Zoom screenshare.
 
 ## Implementation
@@ -10,7 +10,7 @@ creation of sessions. Say for now that the server is running at
 `foo.com`.
 
 To create a session, open a websocket connection to
-`ws://foo.com/create`. Once the connection has been extablished, the
+`ws://foo.com/create`. Once the connection has been established, the
 server will send a json object over the new connection with a URL that
 other's can visit to view the session.
 
@@ -20,8 +20,8 @@ the features but are likely to be quite buggy.
 
 ## Messages from the server
 
-All communcations are json objets with a `type` and `contents`
-field. The server is capiable of sending two such messages, one is a
+All communications are json objects with a `type` and `contents`
+field. The server is capable of sending two such messages, one is a
 message with type `URL` and contents a url that others can visit to
 watch the session. The second message type is `RESEND` which indicates
 that the server would like you to resend your editor state. `RESEND`

@@ -366,7 +366,7 @@ func main() {
 
 	http.Handle("/", router)
 
-	fmt.Println("Started. Listening...")
+	fmt.Println("Started. Listening on 7654...")
 	http.ListenAndServe(":7654", nil)
 	fmt.Println("Stopping...")
 }

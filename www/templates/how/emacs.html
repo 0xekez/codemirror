@@ -1,5 +1,5 @@
-{{ define "title" }}Emacs | chmod4{{ end }} {{ define "header" }}
-<h1 id="emacs-installation">Emacs Installation</h1>
+{{ define "title" }}chmod4 | Emacs{{ end }} {{ define "header" }}
+<h1>Emacs Installation</h1>
 <p class="big-text">Getting set up using Emacs is simple and easy. Here’s how:</p>
 <img id="demo" src="/public/img/emacs-preview.jpg">
 {{ end }} {{ define "body" }}
@@ -10,8 +10,8 @@
       below and place it somewhere you'll remember. For the purposes
       of this example, lets say that we've downloaded it to
       <code>~/.emacs.d/lisp/mirror.el</code>.
-      <a href="/public/content/mirror.el" download>
-	    <button class="block body-text" style="margin-left: 0">Download</button>
+      <a class="block" href="/public/content/mirror.el" download>
+        Download
       </a>
     </li>
     <li>
@@ -21,7 +21,7 @@
     <li>
       Add the installation directory to your
       emacs <a href="https://www.emacswiki.org/emacs/LoadPath">Load
-      Path</a> by adding the following to your <code>init.el</code>
+        Path</a> by adding the following to your <code>init.el</code>
       or <code>.emacs</code> file:
       <pre><code>(add-to-list 'load-path "~/.emacs.d/lisp")
 (require 'mirror)
