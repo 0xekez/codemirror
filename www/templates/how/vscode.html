@@ -1,0 +1,40 @@
+{{ define "title" }}chmod4 | VS Code{{ end }} {{ define "header" }}
+<h1>VS Code Installation</h1>
+{{ end }} {{ define "body" }}
+<div class="content body-text">
+  <ol>
+    <li>
+      Download the <code>codemirror.vsix</code> file by clicking the button, and place it somewhere you'll remember.
+      <a class="block" href="/public/content/codemirror.vsix" download>
+        Download
+      </a>
+    </li>
+    <li>
+      Open VS Code and then open the command palette.
+      <ul>
+        <li><code>Cmd/Ctrl + Shift + P</code></li>
+        <li><code>View -> Command Palette...</code></li>
+      </ul>
+    </li>
+    <li>
+      Type <code>vsix</code> and run this command:
+      <pre>Extensions: Install from VSIX...</pre>
+    </li>
+    <li>
+      Select the <code>codemirror.vsix</code> file you downloaded in step 1.
+    </li>
+  </ol>
+  <h2 id="usage">Usage</h2>
+  <p>These commands are accessible via the command palette.</p>
+  <ul>
+    <li>
+      Start mirroring command:
+      <pre>chmod4.mirror: Create New Session</pre>
+    </li>
+    <li>
+      Stop mirroring command:
+      <pre>chmod4.mirror: Close Session</pre>
+    </li>
+  </ul>
+</div>
+{{ end }}
