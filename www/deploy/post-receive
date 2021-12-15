@@ -1,0 +1,12 @@
+#!/bin/sh
+
+echo "Updating files..."
+git --work-tree=/home/www/codemirror --git-dir=/home/www/codemirror.git checkout -f
+
+echo "Building and reloading..."
+
+cd /home/www/codemirror/www
+./scripts/buildReload.sh
+
+echo "Deployed!"
+

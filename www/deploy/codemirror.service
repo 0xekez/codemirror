@@ -1,0 +1,15 @@
+[Unit]
+Description=codemirror
+
+[Service]
+User=www
+Group=www
+Type=simple
+Restart=always
+RestartSec=5s
+WorkingDirectory=/home/www/codemirror/www
+ExecStart=/home/www/codemirror/www/server
+
+[Install]
+WantedBy=multi-user.target
+
